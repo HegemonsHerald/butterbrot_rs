@@ -5,9 +5,7 @@ fn main() {
 
     /* Try and read the birb file */
 
-    let mut buffer: Vec<u64>;
-
-    buffer = read_birb("foo.birb");
+    let mut buffer: Vec<u64> = read_birb("foo.birb");
 
     /* how to make example data:
     let mut buffer:Vec<u64> = Vec::new();
