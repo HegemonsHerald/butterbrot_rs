@@ -1,29 +1,30 @@
 use std::io::*;
 use std::fs::File;
 
-
 /// Reads a `.birb` file to `Vec<u64>`.
 /// Takes the `filename` to read from.
 ///
 /// If the `.birb` file isn't formatted properly, that is, contains as many `u64` values as the
 /// product of the first two `u64`s plus 2 (width * height + 2 (for the width and the height)),
-/// this function returns an `std::io::ErrorKind::InvalidData`.
+/// this function exits the process with an error message.
 ///
-/// If the `.birb` file couldn't be read, this returns an `std::io::ErrorKind::InvalidInput`.
-pub fn read_birb(filename: &str) -> Result<Vec<u64>> {
+/// If the `.birb` file couldn't be read, this function also exits the process, with a different
+/// error message.
+pub fn read_birb(filename: &str) -> Vec<u64> {
 
     /* Open and read the birb file */
 
-    let mut f;
-
-    match File::open(filename) {
-        Err(_e) => return Err(Error::from(ErrorKind::InvalidInput)),
-        Ok(v)  => f = v,
-    }
+    let mut f = File::open(filename).unwrap_or_else(|_e| {
+        println!("\x1B[31;1mError:\x1B[0m Couldn't open file. The specified birb-file doesn't exist or is inaccessible.");
+        std::process::exit(1)
+    });
 
     let mut birb_raw: Vec<u8> = Vec::new();
 
-    f.read_to_end(&mut birb_raw)?;
+    f.read_to_end(&mut birb_raw).unwrap_or_else(|e| {
+        println!("\x1B[31;1mError:\x1B[0m There was an error while reading the birb file:\n\t{:?}", e);
+        std::process::exit(1)
+    });
 
 
     /* Convert to u64 */
@@ -47,21 +48,30 @@ pub fn read_birb(filename: &str) -> Result<Vec<u64>> {
 
     /* Validate birb format */
 
+    // The first two numbers in a valid birb are its width and height, so their product is the
+    // number of numbers stored in the rest of the birb. That product plus 2 for the first two
+    // should equal the buffer's size exactly.
     if birb.len() as u64 != birb[0] * birb[1] + 2 {
 
-        return Err(Error::from(ErrorKind::InvalidData));
+        println!("\x1B[31;1mError:\x1B[0m The read birb file is malformed.");
+        std::process::exit(1)
 
     }
 
-    Ok(birb)
+    birb
 
 }
 
-pub fn write_birb(filename: &str, birb: &Vec<u64>) -> Result<()> {
+/// Writes a `.birb` file from an existing birb buffer.
+/// Takes a `filename` to write to and a borrow of a `birb`, which is the data to write.
+pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Open file to write to */
 
-    let mut f = File::create(filename)?;
+    let mut f = File::create(filename).unwrap_or_else(|e| {
+        println!("\x1B[31;1mError:\x1B[0m Couldn't open birb file to write:\n\t{:?}", e);
+        std::process::exit(1)
+    });
 
 
     /* Convert from u64 to u8 */
@@ -88,13 +98,9 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) -> Result<()> {
 
     /* Write */
 
-    f.write_all(&birb_raw)?;
-
-    Ok(())
+    f.write_all(&birb_raw).unwrap_or_else(|e| {
+        println!("\x1B[31;1mError:\x1B[0m There was an error while writing the birb file:\n\t{:?}", e);
+        std::process::exit(1)
+    });
 
 }
-
-// pub fn filename(prefix: String) -> String {
-
-// }
-
