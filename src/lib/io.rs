@@ -109,22 +109,23 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Convert from u64 to u8 */
 
-    let mut birb_raw: Vec<u8> = Vec::new();
 
-    for i in 0..(birb.len()) {
+    // Make a u8 pointer to the birb
+    let ptr  = birb.as_ptr();
+    let ptr8 = ptr as *mut u8;
 
-        // Make pointer to the i-th u64
-        let ptr64 = &birb[i] as *const u64;
-        let ptr8  = ptr64 as *const u8;
+    // Length for the u8 vector, equal to capacity
+    let length = birb.len() * 8;
 
-        for offset in 0..8 {
+    let birb_raw;
 
-            unsafe {
-                let ptr = ptr8.clone().offset(offset);
-                birb_raw.push(*ptr);
-            }
+    unsafe {
 
-        }
+        // Make a new vector, but like, u8
+        birb_raw = Vec::from_raw_parts(ptr8, length, length);
+
+        // No need to explicitely drop birb_raw, it goes out of scope with the end of this
+        // function!
 
     }
 
