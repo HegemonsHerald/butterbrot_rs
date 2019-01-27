@@ -47,7 +47,7 @@ fn main() {
             println!("Complex number:\t{{ real: {}, jmag: {} }}", j.r, j.i);
         }
 
-        }
+    }
 
 
         /* Finish properly */

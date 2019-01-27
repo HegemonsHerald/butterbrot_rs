@@ -112,7 +112,7 @@ impl MHOrbits {
         /* Create a new MHOrbits */
 
         // Create orbit, filter it for 'interesting' numbers, and figure out its length (the actual numbers don't matter, cause warm-up)
-        let sample:Complex = MHOrbits::rnd_sample();
+        let sample: Complex = MHOrbits::rnd_sample();
         let length = Orbit::new(sample, iterations)
             .filter(|c| MHOrbits::in_range(c))
             .collect::<Vec<Complex>>()              // TURBOOOO FIIIIIISH, YAY =)
