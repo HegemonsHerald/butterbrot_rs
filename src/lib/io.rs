@@ -14,6 +14,7 @@ use std::fs::File;
 ///
 /// If the `.birb` file couldn't be read, this function also exits the process, with a different
 /// error message.
+#[no_mangle]
 pub fn read_birb(filename: &str) -> Vec<u64> {
 
     /* Open and read the birb file */
@@ -84,12 +85,12 @@ pub fn read_birb(filename: &str) -> Vec<u64> {
     // number of numbers stored in the rest of the birb. That product plus 2 for the first two
     // should equal the buffer's size exactly.
     // If there are less than two numbers, you obviously screwed up.
-    if birb.len() < 2 || birb.len() as u64 != birb[0] * birb[1] + 2 {
-
-        println!("\x1B[31;1mError:\x1B[0m The read birb file is malformed.");
-        std::process::exit(1)
-
-    }
+//     if birb.len() < 2 || birb.len() as u64 != birb[0] * birb[1] + 2 {
+//
+//         println!("\x1B[31;1mError:\x1B[0m The read birb file is malformed.");
+//         std::process::exit(1)
+//
+//     }
 
     birb
 
