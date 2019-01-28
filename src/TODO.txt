@@ -4,15 +4,31 @@ Adding the actual mathematics into the math module...
 Args_Parser
 ===========
 
+  - supported flags
+	
+	--iterations	-i	iterations for each orbit
+	--samples	-s	how many orbits to compute; optional if a timeout was provided
+	--timeout	-t	optional timeout for the computation
+	--out		-o	filename for birb output
+	--width		-w	width for the buffer
+	--height	-h	height for the buffer
+	--complex1 r i	-c1 r i	one of the complex numbers dilimiting the frame to compute in, r and i being the real and imag parts
+	--complex2 r i	-c2 r i	one of the complex numbers dilimiting the frame to compute in, r and i being the real and imag parts
+
+  - parse_args(args_v) does sth like this: setup the output tuple, call iter on args, then loop indefinitely
+    on each loop, get the next argument, parse it using match against the flags, handle each flag appropriately
+      appropriately means, possibly get the next arg and match that against pattern or &str::parse() it or sth,
+      possibly even do that multiple times
+      OR exit(1) with a suitable error message
+
 Write_Back
 ==========
 
   - inside lib:: we'll have functions to do all of this...
+  	- literally just lib::write_back(orbit:&Vec<u64>, supreme:&mut MutexLock)
 
   - Vec<u64>::with_capacity() and init counters to 0
-  - floor Complex numbers to the next lower Complex position, that has a representation in the birb
-  - turn a floored Complex into an index for accessing the birb-buffer
-  - access birb and increase counter properly
+  - vec[(imaginairy / step_size).floor() + (real / step_size).floor()] += 1
 
 
 The multi-threading and computation
@@ -23,6 +39,8 @@ The multi-threading and computation
   - the thread closure loops in accordance with the timeout settings and the sample count assigned to the thread,
     and does a write_back after a configured number of orbits where computed
   - after each write_back it sends data down its msg_channel in accordance with 'Logging output'
+
+  - use into_inner to de-mutex-ify the supreme_birb for writing!
 
 
 Termination Settings
@@ -72,3 +90,6 @@ Logging output
       left / maximum runtime: NNs / NNs   (optional, depends on timeout setting)
 
   - the percentages can easily be computed from main, cause main knows how many samples each thread has to work on from originally creating the threads
+
+  - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
+    that was written and whatnot.
