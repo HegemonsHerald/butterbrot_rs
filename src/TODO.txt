@@ -1,6 +1,74 @@
+Adding the actual mathematics into the math module...
+=====================================================
+
+Args_Parser
+===========
+
+Write_Back
+==========
+
+  - inside lib:: we'll have functions to do all of this...
+
+  - Vec<u64>::with_capacity() and init counters to 0
+  - floor Complex numbers to the next lower Complex position, that has a representation in the birb
+  - turn a floored Complex into an index for accessing the birb-buffer
+  - access birb and increase counter properly
 
 
+The multi-threading and computation
+===================================
 
-Everything.
+  - a thread creator function from lib creates a list of threads, each configured based on the user input
+
+  - the thread closure loops in accordance with the timeout settings and the sample count assigned to the thread,
+    and does a write_back after a configured number of orbits where computed
+  - after each write_back it sends data down its msg_channel in accordance with 'Logging output'
 
 
+Termination Settings
+====================
+
+  - you specify the number of samples to compute
+
+  - you optionally specify a timeout after which the program will definitely terminate, whether it's done or not
+
+  - if you only specify a timeout, the args_parser sets the sample number to integer_max so that as many samples
+    as possible will be computed
+
+  - if you don't specify a timeout, the args_parser doesn't set the timeout flag, so the timeout will be ignored
+
+    let (timeout, runtime, samples) = args_parser(args_v);
+
+    where timeout = true if timeout setting was specified
+	  runtime = the number of seconds (?) to terminate after, if timeout is true
+	  samples = the number of samples to compute
+
+
+Logging output
+==============
+
+  - main keeps a receiver of a channel
+  - main keeps a stopwatch running, about the elapsed time
+  - each thread gets a sender to that receiver
+
+  - after each write_back the threads send a tuple with the thread's unique id and the number of samples left in it's MHOrbits-Iterator
+
+  - main keeps a list of messages as long as the number of threads there is
+  - every time main receives a message, it puts the number of samples into the id-position of the thread in the messages list
+  - every time each position of the list is filled, main empties the message queue and produces following logging-output:
+
+      thread 1 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 2 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 3 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 4 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 5 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 6 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 7 { total: NN, done: NN, left: NN, percent: NN% }
+      thread 8 { total: NN, done: NN, left: NN, percent: NN% }
+
+      samples done / total:   NN/NN
+      percentage done:	      NN%
+      time elapsed:	      NNs
+      left / maximum runtime: NNs / NNs   (optional, depends on timeout setting)
+
+  - the percentages can easily be computed from main, cause main knows how many samples each thread has to work on from originally creating the threads

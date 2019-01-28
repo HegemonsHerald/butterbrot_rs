@@ -1,11 +1,12 @@
 mod lib;
 use lib::io::*;
+use lib::math::*;
 
 fn main() {
 
     /* Try and read the birb file */
 
-    let mut buffer: Vec<u64> = read_birb("foo.birb");
+    // let buffer: Vec<u64> = read_birb("foo.birb");
 
     /* how to make example data:
     let mut buffer:Vec<u64> = Vec::new();
@@ -23,11 +24,34 @@ fn main() {
 
     /* Try and write the birb file */
 
-    write_birb("birb.birb", &buffer);
+    // write_birb("birb.birb", &buffer);
 
 
-    /* Finish properly */
+    /* Now for trying the iterators I made */
 
-    std::process::exit(0);
+    /*
+    let orbit = Orbit::new(Complex{r:33.0,i:32.0}, 10);
+
+    for i in orbit {
+        println!("Complex number:\t{{ real: {}, imag: {} }}", i.r, i.i);
+    }
+    */
+
+    let mut mh_orbit = MHOrbits::new(5, 30, 4, Complex::new(-1f64, -7.0), Complex::new(10.0, 10.0));
+
+    for i in mh_orbit {
+        let mut vv: Vec<Complex>;
+        println!(":=========================================:");
+
+        for j in i {
+            println!("Complex number:\t{{ real: {}, jmag: {} }}", j.r, j.i);
+        }
+
+    }
+
+
+        /* Finish properly */
+
+        std::process::exit(0);
 
 }
