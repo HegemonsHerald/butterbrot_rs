@@ -33,6 +33,10 @@ Args_Parser
 	--complex1 r i	-c1 r i	one of the complex numbers dilimiting the frame to compute in, r and i being the real and imag parts
 	--complex2 r i	-c2 r i	one of the complex numbers dilimiting the frame to compute in, r and i being the real and imag parts
 
+  - the default for the thread_count is going to take some testing,
+    with dummy computations 8 threads total, so thread_count = 7, seems to be quite alright (though not necessarily
+    for sustained computation), but with the actual math needing to be done, this might have to be lowered
+
   - parse_args(args_v) does sth like this: setup the output tuple, call iter on args, then loop indefinitely
     on each loop, get the next argument, parse it using match against the flags, handle each flag appropriately
       appropriately means, possibly get the next arg and match that against pattern or &str::parse() it or sth,

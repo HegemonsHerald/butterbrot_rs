@@ -9,7 +9,7 @@ fn main() {
 
     /* Parse Arguments */
 
-    let (thread_count, (sample_count, iterations, warmup), (width, height), (c1, c2), timeout) = (8, (99, 100000, 3), (12u64, 15u64), (math::Complex::new(33.0, 42.4), math::Complex::new(9.0, 9.7897)), Duration::from_secs(3));
+    let (thread_count, (sample_count, iterations, warmup), (width, height), (c1, c2), timeout) = (7, (100000, 100000, 3), (12u64, 15u64), (math::Complex::new(33.0, 42.4), math::Complex::new(9.0, 9.7897)), Duration::from_secs(100000));
 
 
     /* Do the actual thing */
