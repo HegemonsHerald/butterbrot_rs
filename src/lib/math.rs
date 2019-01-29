@@ -96,15 +96,21 @@ pub struct MHOrbits {
 impl MHOrbits {
 
     /// Creates a new MHOrbits Iterator
-    /// - `sample_count` is the number of (*computed*) orbits this iterator will yield
-    /// - `warmup` is the number of samples to compute and discard, to "warm-up"
-    ///   Metropolis-Hastings
-    /// - `iterations` is the number of iterations, each orbit will test for
-    /// - `corner_1` is the complex number of one of the corners of the rectangular segment of
-    ///   Buddahbrot, we'd like to explore
-    /// - `corner_2 is the complex nuymber of the corner diagonally opposite of `corner_1`
     ///
-    /// The Orbits this iterator yields, will be *computed*, that is, they aren't actually
+    /// ### Arguments
+    /// `sample_count` is the number of (*computed*) orbits this iterator will yield
+    ///
+    /// `warmup` is the number of samples to compute and discard, to "warm-up"
+    /// Metropolis-Hastings
+    ///
+    /// `iterations` is the number of iterations, each orbit will test for
+    ///
+    /// `corner_1` is the complex number of one of the corners of the rectangular segment of
+    /// Buddahbrot, we'd like to explore
+    ///
+    /// `corner_2 is the complex nuymber of the corner diagonally opposite of `corner_1`
+    ///
+    /// **Note:** The Orbits this iterator yields, will be *computed*, that is, they aren't actually
     /// `Orbit`-type Iterators, but the results of such, collected into `Vec<Complex>`-type
     /// Vectors!
     pub fn new(sample_count:i32, warmup:i32, iterations:i32, corner_1: Complex, corner_2: Complex) -> MHOrbits {
@@ -175,6 +181,21 @@ impl MHOrbits {
     fn sample_from(c:&Complex) -> Complex {
         // TODO choose a good random number based on the previous random number
         Complex::new(c.r + 0.5, c.i + 0.5)
+    }
+
+    /// Tells you how many samples are still left from this `MHOrbits`
+    pub fn remaining(&self) -> i32 {
+        self.sample_count
+    }
+
+    /// Tells you whether this `MHOrbits` has finished its computation, without you needing to
+    /// create a peekable Iterator or -- god fobid -- pattern match against `next()`
+    pub fn finished(&self) -> bool {
+        if self.sample_count > 0 {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }
