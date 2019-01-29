@@ -36,6 +36,12 @@ fn main() {
         );
 
 
+    /* Write data to file */
+
+    // acquire the data
+    // birb.into_inner()
+
+
     /* Finish properly */
 
     std::process::exit(0);

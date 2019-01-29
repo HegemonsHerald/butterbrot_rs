@@ -1,3 +1,21 @@
+
+ERROR HANDLING MACRO
+====================
+
+Figure out a little macro_rules! macro, that can be placed around a thing that returns a Result:
+The macro should turn this:
+
+  let mut f = unwrap!(File::open(filename), "Error message");
+
+into this:
+
+  let mut f = File::open(filename).unwrap_or_else(|_e| {
+    print!(THE RED ERROR WORD THING);
+    println!("Error message");
+    std::process::exit(1)
+  });
+
+
 Adding the actual mathematics into the math module...
 =====================================================
 
@@ -29,18 +47,6 @@ Write_Back
 
   - Vec<u64>::with_capacity() and init counters to 0
   - vec[(imaginairy / step_size).floor() + (real / step_size).floor()] += 1
-
-
-The multi-threading and computation
-===================================
-
-  - a thread creator function from lib creates a list of threads, each configured based on the user input
-
-  - the thread closure loops in accordance with the timeout settings and the sample count assigned to the thread,
-    and does a write_back after a configured number of orbits where computed
-  - after each write_back it sends data down its msg_channel in accordance with 'Logging output'
-
-  - use into_inner to de-mutex-ify the supreme_birb for writing!
 
 
 Termination Settings
@@ -90,6 +96,8 @@ Logging output
       left / maximum runtime: NNs / NNs   (optional, depends on timeout setting)
 
   - the percentages can easily be computed from main, cause main knows how many samples each thread has to work on from originally creating the threads
+
+  - the logging function only empties those msg from its queue, that don't contain the count 0, and when all counts are 0, it returns! (or after the timeout has elapsed)
 
   - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
     that was written and whatnot.
