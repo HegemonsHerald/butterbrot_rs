@@ -1,3 +1,4 @@
+
 pub mod io;
 pub mod math;
 use std::sync::{Arc, Mutex};
@@ -8,6 +9,18 @@ use std::time::{Instant, Duration};
 // TODO proper re-exports
 // TODO make private, what can be private
 // TODO replace error handling with an error handling macro!
+
+macro_rules! error {
+
+    ( $( $result:expr, $msg:expr ),* ) => {
+        $($result)*.unwrap_or_else(|_e| {
+            print!("\x1B[31;1mError:\x1B[0m ");
+            println!("{}", $($msg)*);
+            std::process::exit(1);
+        })
+    }
+
+}
 
 
 // TODO documentation
@@ -148,11 +161,7 @@ pub fn butterbrot_run(
 
                 /* Send logging info */
 
-                log_snd.send((thread_index, mh_orbits.remaining()))
-                    .unwrap_or_else(|_e| {
-                        println!("\x1B[31;1mError:\x1B[0m Sending logging data from thread {} failed. This indicates something was wrong with the main thread!", thread_index);
-                        std::process::exit(1)
-                    });
+                error!(log_snd.send((thread_index, mh_orbits.remaining())), "\x1B[31;1mError:\x1B[0m Sending logging data from thread {} failed. This indicates something was wrong with the main thread!");
 
 
                 /* Check the timeout */

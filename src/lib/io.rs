@@ -1,6 +1,20 @@
 use std::io::*;
 use std::fs::File;
 
+
+macro_rules! error {
+
+    ( $( $result:expr, $msg:expr ),* ) => {
+        $($result)*.unwrap_or_else(|_e| {
+            print!("\x1B[31;1mError:\x1B[0m ");
+            println!("{}", $($msg)*);
+            std::process::exit(1);
+        })
+    }
+
+}
+
+
 /// Reads a `.birb` file to `Vec<u64>`.
 /// Takes the `filename` to read from.
 ///
@@ -18,17 +32,11 @@ pub fn read_birb(filename: &str) -> Vec<u64> {
 
     /* Open and read the birb file */
 
-    let mut f = File::open(filename).unwrap_or_else(|_e| {
-        println!("\x1B[31;1mError:\x1B[0m Couldn't open file. The specified birb-file doesn't exist or is inaccessible.");
-        std::process::exit(1)
-    });
+    let mut f = error!(File::open(filename), "Couldn't open file. The specified birb-file doesn't exist or is inaccessible.");
 
     let mut birb_raw: Vec<u8> = Vec::new();
 
-    f.read_to_end(&mut birb_raw).unwrap_or_else(|e| {
-        println!("\x1B[31;1mError:\x1B[0m There was an error while reading the birb file:\n\t{:?}", e);
-        std::process::exit(1)
-    });
+    error!(f.read_to_end(&mut birb_raw), "There was an error while reading the birb file.");
 
 
     /* Convert to u64 */
@@ -86,8 +94,7 @@ pub fn read_birb(filename: &str) -> Vec<u64> {
     // If there are less than two numbers, you obviously screwed up.
     if birb.len() < 2 || birb.len() as u64 != birb[0] * birb[1] + 2 {
 
-        println!("\x1B[31;1mError:\x1B[0m The read birb file is malformed.");
-        std::process::exit(1)
+        error!(Err("honk"), "The read birb file is malformed.");
 
     }
 
@@ -101,10 +108,7 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Open file to write to */
 
-    let mut f = File::create(filename).unwrap_or_else(|e| {
-        println!("\x1B[31;1mError:\x1B[0m Couldn't open birb file to write:\n\t{:?}", e);
-        std::process::exit(1)
-    });
+    let mut f = error!(File::create(filename), "Couldn't open birb file to write.");
 
 
     /* Convert from u64 to u8 */
@@ -132,9 +136,6 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Write */
 
-    f.write_all(&birb_raw).unwrap_or_else(|e| {
-        println!("\x1B[31;1mError:\x1B[0m There was an error while writing the birb file:\n\t{:?}", e);
-        std::process::exit(1)
-    });
+    error!(f.write_all(&birb_raw), "There was an error while writing the birb file");
 
 }
