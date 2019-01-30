@@ -14,9 +14,15 @@ macro_rules! error {
 
     ( $( $result:expr, $msg:expr ),* ) => {
         $($result)*.unwrap_or_else(|_e| {
-            print!("\x1B[31;1mError:\x1B[0m ");
-            println!("{}", $($msg)*);
-            std::process::exit(1);
+            use std::panic;
+
+            // overwrite default panic! message
+            panic::set_hook(Box::new(|_| {
+                print!("\x1B[31;1mError:\x1B[0m "); // print red 'Error:'
+                println!("{}", $($msg)*);           // print provided error message
+            }));
+
+            panic!("");
         })
     }
 
