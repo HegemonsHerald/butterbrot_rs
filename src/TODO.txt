@@ -1,19 +1,14 @@
 
+=====================================
+FIX ALL THE TODOS THAT ARE EVERYWHERE
+=====================================
+
+
+
 ERROR HANDLING MACRO
 ====================
 
-Figure out a little macro_rules! macro, that can be placed around a thing that returns a Result:
-The macro should turn this:
-
-  let mut f = unwrap!(File::open(filename), "Error message");
-
-into this:
-
-  let mut f = File::open(filename).unwrap_or_else(|_e| {
-    print!(THE RED ERROR WORD THING);
-    println!("Error message");
-    std::process::exit(1)
-  });
+figure out how to properly share this between the modules!
 
 
 Adding the actual mathematics into the math module...
