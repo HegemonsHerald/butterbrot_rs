@@ -1,3 +1,57 @@
+/// Lil' helper with the errors
+///
+/// Use `error!( Err(42), "Oh no, It gone bad!" )` to output something like:
+/// <pre><code><b style="color:red">Error:</b> Oh no, It gone bad!
+/// </code></pre>
+///
+/// Use `error!( Err(42), "Noooooooooooooo", 1 )` (or any other valid expression in place of
+/// the `1`) to output something like:
+/// <pre><code><b style="color:red">Error:</b> Noooooooooooooo
+///     System Error: 42
+/// </code></pre>
+#[macro_export]
+macro_rules! error {
+
+    ( $result:expr, $msg:expr, $format:expr ) => {
+
+        { // I wish to run multiple statements, so I need a code block. Last statement will be return value
+
+            $result.unwrap_or_else(|e| {
+                // For some reason the adapted panic! used in the next rule doesn't work with format!,
+                // so just clear the panic from any messaging
+                std::panic::set_hook(Box::new(|_| { }));
+
+                // Print custom error msg
+                println!("\x1B[31;1mError:\x1B[0m {}", $msg);
+                println!("\tSystem Error: {:?}", e);
+
+                // Panic without msg
+                panic!("");
+
+            })
+
+        }
+    };
+
+    ( $result:expr, $msg:expr ) => {
+
+        {
+            // Set custom panic message
+            std::panic::set_hook(Box::new(|panic_info| {
+
+                // Print red 'Error: ' followed by panic payload
+                println!("\x1B[31;1mError:\x1B[0m {}", panic_info.payload().downcast_ref::<&str>().unwrap());
+
+            }));
+
+            // Panic.
+            $result.unwrap_or_else(|_| {
+                panic!($msg);
+            })
+
+        }
+    }
+}
 
 pub mod io;
 pub mod math;
@@ -9,24 +63,6 @@ use std::time::{Instant, Duration};
 // TODO proper re-exports
 // TODO make private, what can be private
 // TODO replace error handling with an error handling macro!
-
-macro_rules! error {
-
-    ( $( $result:expr, $msg:expr ),* ) => {
-        $($result)*.unwrap_or_else(|_e| {
-            use std::panic;
-
-            // overwrite default panic! message
-            panic::set_hook(Box::new(|_| {
-                print!("\x1B[31;1mError:\x1B[0m "); // print red 'Error:'
-                println!("{}", $($msg)*);           // print provided error message
-            }));
-
-            panic!("");
-        })
-    }
-
-}
 
 
 // TODO documentation
@@ -43,7 +79,7 @@ fn logging(rcv:Receiver<(i32, i32)>) {
 
     // TODO implement the real thing!
 
-    while true {
+    loop {
         println!("{:?}", rcv.recv().unwrap());
     }
 

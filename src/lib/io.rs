@@ -1,26 +1,6 @@
 use std::io::*;
 use std::fs::File;
 
-
-macro_rules! error {
-
-    ( $( $result:expr, $msg:expr ),* ) => {
-        $($result)*.unwrap_or_else(|_e| {
-            use std::panic;
-
-            // overwrite default panic! message
-            panic::set_hook(Box::new(|_| {
-                print!("\x1B[31;1mError:\x1B[0m "); // print red 'Error:'
-                println!("{}", $($msg)*);           // print provided error message
-            }));
-
-            panic!("");
-        })
-    }
-
-}
-
-
 /// Reads a `.birb` file to `Vec<u64>`.
 /// Takes the `filename` to read from.
 ///
@@ -38,11 +18,11 @@ pub fn read_birb(filename: &str) -> Vec<u64> {
 
     /* Open and read the birb file */
 
-    let mut f = error!(File::open(filename), "Couldn't open file. The specified birb-file doesn't exist or is inaccessible.");
+    let mut f = error!(File::open(filename), "Couldn't open file. The specified birb-file doesn't exist or is inaccessible.", 1);
 
     let mut birb_raw: Vec<u8> = Vec::new();
 
-    error!(f.read_to_end(&mut birb_raw), "There was an error while reading the birb file.");
+    error!(f.read_to_end(&mut birb_raw), "There was an error while reading the birb file.", 1);
 
 
     /* Convert to u64 */
@@ -114,7 +94,7 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Open file to write to */
 
-    let mut f = error!(File::create(filename), "Couldn't open birb file to write.");
+    let mut f = error!(File::create(filename), "Couldn't open birb file to write.", 1);
 
 
     /* Convert from u64 to u8 */
@@ -142,6 +122,6 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Write */
 
-    error!(f.write_all(&birb_raw), "There was an error while writing the birb file");
+    error!(f.write_all(&birb_raw), "There was an error while writing the birb file", 1);
 
 }

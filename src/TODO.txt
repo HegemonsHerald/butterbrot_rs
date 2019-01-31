@@ -3,19 +3,13 @@
 FIX ALL THE TODOS THAT ARE EVERYWHERE
 =====================================
 
-
-
-ERROR HANDLING MACRO
-====================
-
-figure out how to properly share this between the modules!
-
-
 Adding the actual mathematics into the math module...
 =====================================================
 
 Args_Parser
 ===========
+
+  - I WILL MAKE USE OF THE CLAP CRATE FOR THIS, CAUSE THERE'S NO NICE AND CONSISE WAY TO WRITE THIS KIND OF THING, AND I DON'T FANCY RE-INVENTING THE WHEEL
 
   - supported flags
 	
