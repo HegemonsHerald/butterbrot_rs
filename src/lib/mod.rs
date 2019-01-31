@@ -114,8 +114,6 @@ pub fn butterbrot_run(
 
     /* Setup multi-threading and write_back */
 
-    let timestamp = Instant::now();
-
     let step_size = (
         (corner_1.r - corner_2.r).abs() / (width  as f64),  // stepsize in x direction
         (corner_1.i - corner_2.i).abs() / (height as f64)   // stepsize in y direction
@@ -129,6 +127,10 @@ pub fn butterbrot_run(
     // size of supreme_birb for total memory consumption
 
     let (log_snd, log_rcv) = channel();
+
+    let thread_samples = sample_count / thread_count;
+
+    let timestamp = Instant::now();
 
 
     /* Make the threads */
@@ -156,7 +158,7 @@ pub fn butterbrot_run(
 
             // Create necessary data structures
             let mut orbits: Vec<Vec<math::Complex>> = Vec::with_capacity(phase_len as usize);
-            let mut mh_orbits = math::MHOrbits::new(sample_count, warmup, iterations, corner_1, corner_2);
+            let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, corner_1, corner_2);
 
             let mut delta_t = timestamp.elapsed();
 

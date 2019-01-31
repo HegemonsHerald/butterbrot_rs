@@ -167,7 +167,7 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
         (Complex::new(-2.0, -2.0), Complex::new(2.0, 2.0)),
         "birb.birb".to_string(),
         7,
-        (10_000, 1000, 1000),
+        (100_000, 1000, 1000),
         std::u64::MAX,
         );
 
