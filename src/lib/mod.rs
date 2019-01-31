@@ -1,5 +1,8 @@
 /// Lil' helper with the errors
 ///
+/// This Macro does an orderly `panic!`, if it is provided with an Error variant of a Result or
+/// yields the Ok value of the Result, by calling `unwrap_or_else()`.
+///
 /// Use `error!( Err(42), "Oh no, It gone bad!" )` to output something like:
 /// <pre><code><b style="color:red">Error:</b> Oh no, It gone bad!
 /// </code></pre>
@@ -63,27 +66,6 @@ use std::time::{Instant, Duration};
 // TODO proper re-exports
 // TODO make private, what can be private
 // TODO replace error handling with an error handling macro!
-
-
-// TODO documentation
-fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: (f64, f64)) {
-
-    let ss_x = step_size.0;
-    let ss_y = step_size.1;
-
-    // TODO implement the thing
-}
-
-// TODO documentation
-fn logging(rcv:Receiver<(i32, i32)>) {
-
-    // TODO implement the real thing!
-
-    loop {
-        println!("{:?}", rcv.recv().unwrap());
-    }
-
-}
 
 /// Computes the Buddahbrot Set multi-threadedly
 ///
@@ -226,6 +208,25 @@ pub fn butterbrot_run(
 
 }
 
+// TODO documentation
+fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: (f64, f64)) {
+
+    let ss_x = step_size.0;
+    let ss_y = step_size.1;
+
+    // TODO implement the thing
+}
+
+// TODO documentation
+fn logging(rcv:Receiver<(i32, i32)>) {
+
+    // TODO implement the real thing!
+
+    loop {
+        println!("{:?}", rcv.recv().unwrap());
+    }
+
+}
 
 #[cfg(test)]
 mod tests {

@@ -9,7 +9,12 @@ fn main() {
 
     /* Parse Arguments */
 
-    let (thread_count, (sample_count, iterations, warmup), (width, height), (c1, c2), timeout) = (7, (100000, 100000, 3), (12u64, 15u64), (math::Complex::new(33.0, 42.4), math::Complex::new(9.0, 9.7897)), Duration::from_secs(100000));
+    let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup), to) = io::parse_args(std::env::args().collect());
+    let timeout = Duration::from_secs(to);
+
+    println!("width: {}\nheight: {}\nc1: {:?}\nc2: {:?}\nfilename: {}\nthreads: {}\nsamples: {}\nit: {}\nwarmup: {}\ntimeout: {:?}",  width, height, c1, c2, filename, thread_count, sample_count, iterations, warmup, timeout);
+
+    // let (thread_count, (sample_count, iterations, warmup), (width, height), (c1, c2), timeout) = (7, (100000, 100000, 3), (12u64, 15u64), (math::Complex::new(33.0, 42.4), math::Complex::new(9.0, 9.7897)), Duration::from_secs(100000));
 
 
     /* Do the actual thing */
