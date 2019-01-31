@@ -56,13 +56,10 @@ use super::math::Complex;
 ///
 ///     match curr {
 ///
-///         "-w" || "--width"  => { output.0  = parse!("--width",    args, i32) },
-///         "-h" || "--height" => { output.1  = parse!("--height",   args, i32) },
-///         "--filename"       => { output.3  = parse!("--filename", args, string) },
-///         "--complex"        => {
-///             let (r,i) = parse!("--complex", args, complex);
-///             output.2  = math::Complex::new(r, i)
-///         },
+///         "-w" || "--width"  => { output.0 = parse!("--width",    args, i32) },
+///         "-h" || "--height" => { output.1 = parse!("--height",   args, i32) },
+///         "--filename"       => { output.3 = parse!("--filename", args, string) },
+///         "--complex"        => { output.2 = parse!("--complex", args, complex) },
 ///
 ///         s => { panic!("Invalid argument encountered: {}", s) },
 ///
