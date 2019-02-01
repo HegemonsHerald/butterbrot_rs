@@ -25,8 +25,8 @@ macro_rules! error {
                 std::panic::set_hook(Box::new(|_| { }));
 
                 // Print custom error msg
-                println!("\x1B[31;1mError:\x1B[0m {}", $msg);
-                println!("\tSystem Error: {:?}", e);
+                eprintln!("\x1B[31;1mError:\x1B[0m {}", $msg);
+                eprintln!("\tSystem Error: {:?}", e);
 
                 // Panic without msg
                 panic!("");
@@ -43,7 +43,7 @@ macro_rules! error {
             std::panic::set_hook(Box::new(|panic_info| {
 
                 // Print red 'Error: ' followed by panic payload
-                println!("\x1B[31;1mError:\x1B[0m {}", panic_info.payload().downcast_ref::<&str>().unwrap());
+                eprintln!("\x1B[31;1mError:\x1B[0m {}", panic_info.payload().downcast_ref::<&str>().unwrap());
 
             }));
 
