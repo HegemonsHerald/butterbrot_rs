@@ -160,11 +160,11 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
     // output has the format:
     // ( (width, height), (c1, c2), filename, thread_count, (samples, iterations, warmup), timeout )
     let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) = (
-        (100, 100),
+        (10, 10),
         (Complex::new(-2.0, -2.0), Complex::new(2.0, 2.0)),
         "birb.birb".to_string(),
         7,
-        (100_000, 1000, 1000),
+        (400, 1, 10),
         std::u64::MAX,
         );
 

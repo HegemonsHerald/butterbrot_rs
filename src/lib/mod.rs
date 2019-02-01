@@ -92,6 +92,8 @@ use std::time::{Instant, Duration};
 ///
 /// `corner_1` is one of the boundairy points of the frame of the complex plane, that we want to observe  
 /// `corner_2` is the other point
+///
+/// `filename` is the filename...
 pub fn butterbrot_run(
 
     supreme_birb:Arc<Mutex<Vec<u64>>>,
@@ -108,7 +110,9 @@ pub fn butterbrot_run(
     height: u64,
 
     corner_1: math::Complex,
-    corner_2: math::Complex
+    corner_2: math::Complex,
+
+    filename: &str
 
     ) {
 
@@ -135,7 +139,7 @@ pub fn butterbrot_run(
 
     /* Make the threads */
 
-    let mut handles: Vec<thread::JoinHandle<()>> = Vec::new();
+    let mut handles: Vec<thread::JoinHandle<()>> = Vec::with_capacity(thread_count as usize);
 
     for thread_index in 0..thread_count {
 
@@ -154,7 +158,7 @@ pub fn butterbrot_run(
         let t = thread::spawn(move || {
 
             // Itsy-bitsy bit of logging directly from here!
-            println!("Started thread {}", thread_index);
+            println!("Thread {} in WarmUp", thread_index);
 
             // Create necessary data structures
             let mut orbits: Vec<Vec<math::Complex>> = Vec::with_capacity(phase_len as usize);
@@ -194,7 +198,11 @@ pub fn butterbrot_run(
 
                 delta_t = timestamp.elapsed();
 
+                thread::sleep(Duration::from_secs(1));
+
             }
+
+            println!("Thread {} computed its payload", thread_index);
 
         });
 
@@ -202,11 +210,14 @@ pub fn butterbrot_run(
 
     }
 
+
     /* Logging output */
-    logging(log_rcv);
+    logging(log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
 
     /* Join */
-    handles.into_iter().for_each(|h| h.join().expect("Thread didn't return properly!"));
+    handles.into_iter().for_each(move |h| h.join().expect("Thread didn't return properly!"));
+
+    println!("All threads finished.");
 
 }
 
@@ -219,13 +230,149 @@ fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: 
     // TODO implement the thing
 }
 
+/// generates a String with the *unchanging* part of the logging output
+fn static_msg(width:u64, height:u64, iterations:i32, sample_count:i32, c1:math::Complex, c2:math::Complex, filename:&str) -> String {
+
+    let w = format!("width: {}", width);
+    let i = format!("iterations: {}", iterations);
+
+    // The number of spaces to insert after either 'width' or 'iterations',
+    // depending on which is longer...
+    let mut w_spaces = 0;
+    let mut i_spaces = 0;
+
+    let d = (w.len() as i64 - i.len() as i64).abs();
+
+    match w.len() > i.len() {
+        true  => i_spaces = d,
+        false => w_spaces = d,
+    }
+
+    // The '{tab:>width$}' parts insert a right aligned tab char after width spaces
+
+    format!("{}\n{}\n{}\n{}\n{}",
+            format_args!("{w}{tab:>width$}{h}", w = w, h = format_args!("height: {}", height),        tab = "\t", width = w_spaces as usize),
+            format_args!("{i}{tab:>width$}{s}", i = i, s = format_args!("samples: {}", sample_count), tab = "\t", width = i_spaces as usize),
+            format_args!("complex1: {{ r: {}, i: {} }}", c1.r, c1.i),
+            format_args!("complex2: {{ r: {}, i: {} }}", c2.r, c2.i),
+            format_args!("filename: {}", filename),
+            )
+
+}
+
+/// generates a String with the dynamic thread logging output
+///
+/// `total` should be the total number of samples *per thread*, not for the entire program run.  
+/// `data` is the tuple, that comes back from a thread via the mpsc-channel.
+fn thread_msg(data:(i32, i32), total:i32) -> String {
+
+    format!("thread {} {{ done: {1:>8}, left: {2:>8}, percent: {3:>6}% done }}", data.0, total - data.1, data.1, ((total - data.1) as f32 / total as f32) * 100f32)
+
+}
+
+/// generates a String with the dynamic computation wide logging output
+///
+/// `done` should be the sum number of how many samples all thread have computed so far.  
+/// `total` should be the total number of samples all threads should compute together
+fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> String {
+
+    let a  = "samples done / total:   ";
+    let b  = "percentage done:        ";
+    let c  = "time elapsed:           ";
+    let d  = "left / maximum runtime: ";
+
+    let ts = timestamp.elapsed().as_secs();
+    let to = timeout.as_secs();
+
+    format!("{}{} / {}\n{}{}%\n{}{}s\n{}{}s / {}s\n",
+            a, done, total,
+            b, ((total - done) as f32 / total as f32) * 100f32,
+            c, ts,
+            d, to - ts, to)
+
+}
+
 // TODO documentation
-fn logging(rcv:Receiver<(i32, i32)>) {
+fn logging(
+    rx:Receiver<(i32, i32)>,
+    width:u64,height:u64,
+    threads:i32,
+    sample_count:i32,
+    iterations:i32,
+    c1:math::Complex,
+    c2:math::Complex,
+    filename:&str,
+    timestamp:Instant,
+    timeout:Duration) {
 
-    // TODO implement the real thing!
+    let mut msg:Vec<Option<(i32,i32)>> = Vec::with_capacity(threads as usize);
+    for _ in 0..threads { msg.push(None) }
 
-    loop {
-        println!("{:?}", rcv.recv().unwrap());
+    let static_message = static_msg(width, height, iterations, sample_count, c1, c2, filename);
+    let thread_samples = sample_count / threads;
+
+    let mut delta_t = timestamp.elapsed();
+
+    while delta_t <= timeout {
+
+        // Try to get a message from the channel
+        if let Ok((a,b)) = rx.try_recv() {
+            msg[a as usize] = Some((a,b))
+        }
+
+        // If there are NO Nones among the messages, we can output a new log
+        let b: Option<Vec<_>> = msg.iter().cloned().collect();
+        if b != None {
+
+            // Print static message
+            println!("\n{}\n", static_message);
+
+            // Print thread messages
+            msg.iter()
+                .cloned()
+                .for_each(|a| {
+                    match a {
+                        Some(v) => println!("{}", thread_msg(v, thread_samples)),
+                        None    => {},
+                    }
+                });
+
+            // Print status message
+            let done = msg.iter()
+                .cloned()
+                .fold(0, |acc, val| {
+                    match val {
+                        Some((_,v)) => acc+v,
+                        None        => acc,
+                    }});
+            println!("\n{}", status_msg(done, sample_count, timestamp, timeout));
+
+            // Reset msg to None values
+            msg = msg.iter()
+                .cloned()
+                .map(|v| {
+                    match v {
+                        Some((a,0)) => Some((a,0)),
+                        _ => None,
+                    }
+                }).collect();
+
+            // Break if all threads have reached 0 samples left
+            // (This changes acc whenever it encounters a pair, that hasn't reached 0, so if all
+            // threads are at 0, the acc will remain 0)
+            if msg.iter().cloned().fold(0i32, |acc, v| {
+                match v {
+                    Some((_,0)) => acc,
+                    _ => acc + 1,
+                }
+            }) == 0 {
+                break
+            }
+
+        }
+
+        delta_t = timestamp.elapsed();
+
     }
 
 }
