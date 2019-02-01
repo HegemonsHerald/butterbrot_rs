@@ -46,7 +46,7 @@ use super::math::Complex;
 /// // (width, height, math::Complex( real, imaginairy ), filename)
 /// let mut output = (0i32, 0i32, math::Complex::new(88.9, 72.4), "file.name".to_string());
 ///
-/// let mut curr;
+/// let mut curr:String;
 /// loop {
 ///
 ///     match args.next() {
@@ -54,12 +54,12 @@ use super::math::Complex;
 ///         None    => break,
 ///     }
 ///
-///     match curr {
+///     match curr.as_ref() {
 ///
 ///         "-w" || "--width"  => { output.0 = parse!("--width",    args, i32) },
 ///         "-h" || "--height" => { output.1 = parse!("--height",   args, i32) },
 ///         "--filename"       => { output.3 = parse!("--filename", args, string) },
-///         "--complex"        => { output.2 = parse!("--complex", args, complex) },
+///         "--complex"        => { output.2 = parse!("--complex",  args, complex) },
 ///
 ///         s => { panic!("Invalid argument encountered: {}", s) },
 ///
