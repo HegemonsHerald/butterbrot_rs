@@ -44,19 +44,6 @@ Termination Settings
 Logging output
 ==============
 
-  - main keeps a receiver of a channel
-  - main keeps a stopwatch running, about the elapsed time
-  - each thread gets a sender to that receiver
-
-  - after each write_back the threads send a tuple with the thread's unique id and the number of samples left in it's MHOrbits-Iterator
-
-  - main keeps a list of messages as long as the number of threads there is
-  - every time main receives a message, it puts the number of samples into the id-position of the thread in the messages list
-  - every time each position of the list is filled, main empties the message queue and produces following logging-output:
-
-        ( some four or so newlines, so that there's space above! )
-
-
       Width: NNNN           Height: NNNN
       Iterations: NNNN      Samples: NNNN
       Complex1 { r: FF, i: FF }
@@ -77,13 +64,16 @@ Logging output
       time elapsed:	      NNs
       left / maximum runtime: NNs / NNs  ( this will be ridiculous if no to is provided =) )
 
-  - for the settings at the top, you can probably be smart and create some function, that produces this output once, and then you can just keep it!!!!
-    note that this uses the fancy ass indentation you figured out for the jdoc stuff as well: which is longer, width or iterations? and then add spaces
-    and a tab after them to align them
+  - make this output a little bit more colorful
 
-  - the percentages can easily be computed from main, cause main knows how many samples each thread has to work on from originally creating the threads
+  - add handling: when a custom timeout is set, the threads almost certainly will take longer than logging() to return,
+    so the threads need to set their behaviour accordingly => add a boolean value for using the timeout so that you can use:
+      (timeout reached || use_timeout) && !mh_orbit.finished()
+    to see if a thread loop should return, and then you can do some conditional error handling, where the thread panics only if
+    use_timeout is false, and assumes that the timeout was reached in logging()...
 
-  - the logging function only empties those msg from its queue, that don't contain the count 0, and when all counts are 0, it returns! (or after the timeout has elapsed)
+    ASK YOURSELF: Is this still sensible? Cause if you do this kind of conditional error handling for the messaging, you might
+    as well just not handle the error at all. It's not like it really matters or like there really is a chance for main() to break.
 
   - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
     that was written and whatnot.
