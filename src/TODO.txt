@@ -44,36 +44,5 @@ Termination Settings
 Logging output
 ==============
 
-      Width: NNNN           Height: NNNN
-      Iterations: NNNN      Samples: NNNN
-      Complex1 { r: FF, i: FF }
-      Complex2 { r: FF, i: FF }
-      Filename: BIRB
-
-      thread 1 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 2 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 3 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 4 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 5 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 6 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 7 { total: NN, done: NN, left: NN, percent: NN% }
-      thread 8 { total: NN, done: NN, left: NN, percent: NN% }
-
-      samples done / total:   NN/NN
-      percentage done:	      NN%
-      time elapsed:	      NNs
-      left / maximum runtime: NNs / NNs  ( this will be ridiculous if no to is provided =) )
-
-  - make this output a little bit more colorful
-
-  - add handling: when a custom timeout is set, the threads almost certainly will take longer than logging() to return,
-    so the threads need to set their behaviour accordingly => add a boolean value for using the timeout so that you can use:
-      (timeout reached || use_timeout) && !mh_orbit.finished()
-    to see if a thread loop should return, and then you can do some conditional error handling, where the thread panics only if
-    use_timeout is false, and assumes that the timeout was reached in logging()...
-
-    ASK YOURSELF: Is this still sensible? Cause if you do this kind of conditional error handling for the messaging, you might
-    as well just not handle the error at all. It's not like it really matters or like there really is a chance for main() to break.
-
   - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
     that was written and whatnot.
