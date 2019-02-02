@@ -6,14 +6,15 @@ use super::math::Complex;
 ///
 /// ### What does this do?
 ///
-/// This Macro has three rules:
+/// This Macro has four rules:
 ///
 /// 1. Complex Numbers: `parse!("-c1", args, complex)`
 /// 2. Strings: `parse!("--filename", args, string)`
 /// 3. Primitives: `parse!("--width", args, u64)`
+/// 4. Parse Errors: `parse!(unmatched, error)`
 ///
-/// All three variants take a token `&str`, which should be the name of the command line flag, that
-/// is currently being parsed. (For error output)
+/// The three first variants take a token `&str`, which should be the name of the command line
+/// flag, that is currently being parsed. (For error output)
 ///
 /// The second argument is an Iterator, that produces the arguments in order, so the Macro has
 /// access to the Flag's arguments. **This must be an Iterator over Strings!**
@@ -32,6 +33,9 @@ use super::math::Complex;
 /// If any of these operations fail a custom error message is displayed and the application
 /// **panics**.
 ///
+/// The fourth variant is especially for dealing with unmatched command line flags. See the example
+/// below.
+///
 /// ### Usage Example (Why should I care?)
 ///
 /// **Note: I didn't actually test these code snippets.**  
@@ -46,7 +50,7 @@ use super::math::Complex;
 /// // (width, height, math::Complex( real, imaginairy ), filename)
 /// let mut output = (0i32, 0i32, math::Complex::new(88.9, 72.4), "file.name".to_string());
 ///
-/// let mut curr;
+/// let mut curr:String;
 /// loop {
 ///
 ///     match args.next() {
@@ -54,14 +58,15 @@ use super::math::Complex;
 ///         None    => break,
 ///     }
 ///
-///     match curr {
+///     match curr.as_ref() {
 ///
 ///         "-w" || "--width"  => { output.0 = parse!("--width",    args, i32) },
 ///         "-h" || "--height" => { output.1 = parse!("--height",   args, i32) },
 ///         "--filename"       => { output.3 = parse!("--filename", args, string) },
-///         "--complex"        => { output.2 = parse!("--complex", args, complex) },
+///         "--complex"        => { output.2 = parse!("--complex",  args, complex) },
 ///
-///         s => { panic!("Invalid argument encountered: {}", s) },
+///         // print an error with the flag the parsing failed on
+///         unmatched_flag => { parse!(unmatched_flag, error) },
 ///
 ///     }
 ///
@@ -78,25 +83,25 @@ macro_rules! parse {
 
             // Get real part of the complex number
             let r = $source.next().unwrap_or_else(|| {
-                println!("\x1B[31;1mError:\x1B[0m The flag '{}' expects two arguments, a real part and an imaginairy part.", $token);
+                eprintln!("\x1B[31;1mError:\x1B[0m The flag '{}' expects two arguments, a real part and an imaginairy part.", $token);
                 panic!("");
             });
 
             // Get real part of the complex number
             let i = $source.next().unwrap_or_else(|| {
-                println!("\x1B[31;1mError:\x1B[0m The flag '{}' expects one more argument, the imaginairy part.", $token);
+                eprintln!("\x1B[31;1mError:\x1B[0m The flag '{}' expects one more argument, the imaginairy part.", $token);
                 panic!("");
             });
 
             // Parse the next token
             let rp = r.parse::<f64>().unwrap_or_else(|_| {
-                println!("\x1B[31;1mError:\x1B[0m Couldn't parse the real part '{real}' as f64 in '{token} {real} {imag}'.", real = r, imag = i, token = $token);
+                eprintln!("\x1B[31;1mError:\x1B[0m Couldn't parse the real part '{real}' as f64 in '{token} {real} {imag}'.", real = r, imag = i, token = $token);
                 panic!("");
             });
 
             // Parse the next token
             let ip = i.parse::<f64>().unwrap_or_else(|_| {
-                println!("\x1B[31;1mError:\x1B[0m Couldn't parse the imaginairy part '{imag}' as f64 in '{token} {real} {imag}'.", real = r, imag = i, token = $token);
+                eprintln!("\x1B[31;1mError:\x1B[0m Couldn't parse the imaginairy part '{imag}' as f64 in '{token} {real} {imag}'.", real = r, imag = i, token = $token);
                 panic!("");
             });
 
@@ -114,7 +119,7 @@ macro_rules! parse {
 
             // Get the next token, which is a String
             $source.next().unwrap_or_else(|| {
-                println!("\x1B[31;1mError:\x1B[0m The flag '{}' expects one argument.", $token);
+                eprintln!("\x1B[31;1mError:\x1B[0m The flag '{}' expects one argument.", $token);
                 panic!("");
             })
         }
@@ -130,17 +135,31 @@ macro_rules! parse {
 
             // Get the next token
             let t = $source.next().unwrap_or_else(|| {
-                println!("\x1B[31;1mError:\x1B[0m The flag '{}' expects one argument.", $token);
+                eprintln!("\x1B[31;1mError:\x1B[0m The flag '{}' expects one argument.", $token);
                 panic!("");
             });
 
             // Parse the next token
             let i = t.parse::<$type>().unwrap_or_else(|_| {
-                println!("\x1B[31;1mError:\x1B[0m Couldn't parse '{arg}' as {type} in '{token} {arg}'.", arg = t, token = $token, type = stringify!($type));
+                eprintln!("\x1B[31;1mError:\x1B[0m Couldn't parse '{arg}' as {type} in '{token} {arg}'.", arg = t, token = $token, type = stringify!($type));
                 panic!("");
             });
 
             i
+        }
+    };
+
+    // Better error handling, than using error!
+    ($msg:expr, error) => {
+        {
+
+            // Override panic! message
+            std::panic::set_hook(Box::new(|_| {}));
+
+            // Print message and panic
+            eprintln!("\x1B[31;1mError:\x1B[0m Encountered invalid flag: '{}'", $msg);
+            panic!("")
+
         }
     }
 }
@@ -192,7 +211,7 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
             "--complex2"   | "-c2" => { (output.1).1 = parse!("--complex2",   args, complex)},
             "--iterations" | "-i"  => { (output.4).1 = parse!("--iterations", args, i32)},
 
-            s => panic!("Invalid flag encountered: {}", s),
+            s => { parse!(s, error) },
 
         }
 
