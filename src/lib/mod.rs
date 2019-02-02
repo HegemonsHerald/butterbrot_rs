@@ -158,13 +158,16 @@ pub fn butterbrot_run(
         let t = thread::spawn(move || {
 
             // Itsy-bitsy bit of logging directly from here!
-            let white = "\x1B[0m";
-            let red   = "\x1B[31m";
+            let white  = "\x1B[0m";
+            let red    = "\x1B[31m";
+            let yellow = "\x1B[33m";
             println!("Thread {r}{}{w} in WarmUp", thread_index, r=red, w=white);
 
             // Create necessary data structures
             let mut orbits: Vec<Vec<math::Complex>> = Vec::with_capacity(phase_len as usize);
             let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, corner_1, corner_2);
+
+            println!("{y}Thread {r}{}{y} now computing payload{w}", thread_index, y=yellow, r=red, w=white);
 
             let mut delta_t = timestamp.elapsed();
 
@@ -200,6 +203,7 @@ pub fn butterbrot_run(
 
                 delta_t = timestamp.elapsed();
 
+                // TODO remove this line for PRODUCTION
                 thread::sleep(Duration::from_secs(1));
 
             }
@@ -395,6 +399,9 @@ fn logging(
         }
 
         delta_t = timestamp.elapsed();
+
+        // Don't hog the CPU
+        thread::sleep(Duration::from_millis(200)); // TODO for proper computation this can be a much longer time to wait!
 
     }
 
