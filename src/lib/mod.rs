@@ -304,7 +304,7 @@ fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> Strin
 
     format!("{}{y}{} {w}/{y} {}{w}\n{}{y}{}%{w}\n{}{y}{}s{w}\n{}{y}{}s {w}/{y} {}s{w}\n",
             a, done, total,
-            b, ((total - done) as f32 / total as f32) * 100f32,
+            b, (done as f32 / total as f32) * 100f32,
             c, ts,
             d, to - ts, to,
             w=white, y=yellow)
@@ -361,14 +361,14 @@ fn logging(
                 });
 
             // Print status message
-            let done = msg.iter()
+            let left = msg.iter()
                 .cloned()
                 .fold(0, |acc, val| {
                     match val {
                         Some((_,v)) => acc+v,
                         None        => acc,
                     }});
-            println!("\n{}", status_msg(done, sample_count, timestamp, timeout));
+            println!("\n{}", status_msg(sample_count - left, sample_count, timestamp, timeout));
 
             // Reset msg to None values
             msg = msg.iter()
