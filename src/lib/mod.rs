@@ -212,7 +212,7 @@ pub fn butterbrot_run(
 
 
     /* Logging output */
-    logging(log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
+    let rx = logging(log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
 
     /* Join */
     handles.into_iter().for_each(move |h| h.join().expect("Thread didn't return properly!"));
@@ -293,6 +293,10 @@ fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> Strin
 }
 
 // TODO documentation
+// Also note that this function returns the receiver it gets passed,
+// cause when a timeout is set it most definitely would finish before
+// all the threads return and this way it doesn't panic, when the threads
+// try to send their last piece of logging data
 fn logging(
     rx:Receiver<(i32, i32)>,
     width:u64,height:u64,
@@ -303,7 +307,7 @@ fn logging(
     c2:math::Complex,
     filename:&str,
     timestamp:Instant,
-    timeout:Duration) {
+    timeout:Duration) -> Receiver<(i32,i32)> {
 
     let mut msg:Vec<Option<(i32,i32)>> = Vec::with_capacity(threads as usize);
     for _ in 0..threads { msg.push(None) }
@@ -374,6 +378,8 @@ fn logging(
         delta_t = timestamp.elapsed();
 
     }
+
+    rx
 
 }
 
