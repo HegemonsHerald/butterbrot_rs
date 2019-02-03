@@ -164,18 +164,48 @@ macro_rules! parse {
     }
 }
 
-// TODO document
-//   - explain the output order of things, and the default time setting
-//   - explain that because of the linear parse order, this will output that the next flag doesn't
-//     match, if not enough args were provided to a flag, and only outputs, that args are missing,
-//     if that's at the end.
-// TODO add help text
+/// parses command line arguments
+///
+/// This function has a hard-coded set of CLI-args it knows. It will linearly iterate over the list
+/// of user-provided arguments and parse them, as it goes along. It will gracefully `panic!` with a
+/// customised and even somewhat helpful error message, thanks to the `parse!` macro.
+///
+/// There's one curious thing to consider: If a flag takes multiple arguments and the user didn't
+/// provide enough, but instead wrote another flag, this function will treat that flag as the
+/// argument to the previous flag and (*probably*) get a parse error there. That means one has to
+/// be slightly careful with flags and their order, and if parameters aren't provided, this ain't
+/// gonna fly... The `parse!` macro will output, that an argument is missing, if the flag is at the
+/// end of the list.
+///
+/// This function returns a tuple with this structure:
+/// ```
+/// (   (width, height),
+///     (complex1, complex2),
+///     filename,
+///     thread count,
+///     (samples, iterations, warmup),
+///     timeout
+/// )
+/// ```
+/// For what these mean, see the helptext and the docs of `butterbrot_run` (which takes most of
+/// these numbers as arguments).
+///
+/// If a flag isn't provided, default values are used in its place.
+///
+///
+/// **Note:** This function is written specifically for this project, but it can easily be adapted
+/// for other projects, that only require primitive command-line facilities. Simply overwrite the
+/// type declaration and the defaults for the `output` variable, then use the type declaration of
+/// output as the return value of the function. Lastly change the `match` against the flags to suit
+/// the project's needs and adapt the `parse!` macro to reflect the new parsing needs (that
+/// shouldn't be hard: take out the bit about `math::Complex`, and add whatever rules and variants
+/// of rules you need and you're good to go), and this should be fine. Piece of cake.
 pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) {
 
     let mut args = args_v.into_iter();
     args.next();    // skip the name of the application
 
-    // TODO make the defaults much larger
+    // TODO make the defaults and the help text align
     // output has the format:
     // ( (width, height), (c1, c2), filename, thread_count, (samples, iterations, warmup), timeout )
     let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) = (
