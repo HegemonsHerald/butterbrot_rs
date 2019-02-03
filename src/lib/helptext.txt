@@ -1,0 +1,75 @@
+USAGE:
+
+  butterbrot [ARGUMENTS]
+
+
+POSSIBLE FLAGS AND WHAT THEY MEAN:
+
+  h, --help
+        Display this help text.
+
+  -o, --filename <filename>
+        The filename to write the computed data to. This will be a birb file.
+
+        Default: birb_{rand}.birb, where {rand} will be turned into a random
+        string, to insure the file is available.
+
+  -t, --threads <number>
+        How many threads to use for parallel computation. Note, that this is the
+        number of computation threads. The total number of threads is one
+        larger, as this doesn't include the main thread.  This works better, if
+        the total number of threads doesn't exceed the number of available
+        cores.
+
+        Default: 7
+
+  -to, --timeout <seconds>
+        How many whole seconds to run AT MINIMUM, before the program terminates
+        the computation. Note, that the program will finish some time after the
+        timeout has been reached, as each thread will finish the currently
+        active computation before returning.
+        If no timeout is specified this value will be set to the larges possible
+        unsigned 64-Bit integer, a number of seconds, that is unlikely to be
+        reached, while computation is active.
+
+  -w, --width <number>
+        How wide to make the birb.
+
+        Default: 100
+
+  -h, --height <number>
+        How tall to make the birb.
+
+        Default: 100
+
+  -w, --warmup <number>
+        How many samples should the Metropolis-Hastings Iterators discard as
+        warmup. See documentation for more.
+
+        Default: 1000
+
+  -s, --samples <number>
+        How many samples should the program compute in total, across all
+        threads. This does not include the warmup.
+
+        Default: 10000
+
+  -i, --iterations <number>
+        How many iterations long should each Orbit be at max. See documentation
+        for more.
+
+        Default: 100
+
+  -c1, --complex1 <real> <imaginairy>
+        One of the corners of the frame of the Complex Plane that is to be
+        explored. This must be a diagonally opposite corner to --complex1.
+        The real and imaginairy parts must be floats.
+
+        Default: -2.0 -2.0
+
+  -c2, --complex2 <real> <imaginairy>
+        One of the corners of the frame of the Complex Plane that is to be
+        explored. This must be a diagonally opposite corner to --complex1.
+        The real and imaginairy parts must be floats.
+
+        Default: 2.0 2.0

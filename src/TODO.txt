@@ -16,14 +16,10 @@ THE birb2bmp TOOL
 FIX ALL THE TODOS THAT ARE EVERYWHERE
 =====================================
 
+  - make the defaults and the help text align
+
 Adding the actual mathematics into the math module...
 =====================================================
-
-Args_Parser
-===========
-
-  - help text, that shows the flags, their args and the default values
-
 
 Write_Back
 ==========
@@ -37,11 +33,6 @@ Write_Back
 
 Logging output
 ==============
-
-  - Add some grind-down logic, that properly empties the message queue on each cycle of the logging() function,
-    so we don't get any funny business, when we want to add a little bit of sleep time between iterations...
-    (And explain in the comments, why this is good to have, even though not expressly necessary given the immense
-    computational intensity of the Buddahbrot set)
 
   - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
     that was written and whatnot.
