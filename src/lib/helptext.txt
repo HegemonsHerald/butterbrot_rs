@@ -42,7 +42,7 @@ POSSIBLE FLAGS AND WHAT THEY MEAN:
 
         Default: 100
 
-  -w, --warmup <number>
+  -wu, --warmup <number>
         How many samples should the Metropolis-Hastings Iterators discard as
         warmup. See documentation for more.
 
