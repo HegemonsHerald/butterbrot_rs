@@ -186,8 +186,7 @@ pub fn butterbrot_run(
 
                 /* Write back to supreme birb */
 
-                // TODO rewrite error handling
-                let mut birb = supreme.lock().expect("Couldn't acquire Mutex lock");
+                let mut birb = error!(supreme.lock(), "Couldn't acquire Mutex lock");
 
                 orbits.iter().for_each(|o| write_back(o, &mut *birb, step_size));
 
@@ -204,7 +203,7 @@ pub fn butterbrot_run(
                 delta_t = timestamp.elapsed();
 
                 // TODO remove this line for PRODUCTION
-                thread::sleep(Duration::from_secs(1));
+                // thread::sleep(Duration::from_secs(1));
 
             }
 
@@ -315,11 +314,35 @@ fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> Strin
 
 }
 
-// TODO documentation
-// Also note that this function returns the receiver it gets passed,
-// cause when a timeout is set it most definitely would finish before
-// all the threads return and this way it doesn't panic, when the threads
-// try to send their last piece of logging data
+/// Outputs logging information about the state of the threads handled by `butterbrot_run`
+///
+/// ### What this does
+/// This function sporadically composes and prints a log with the computation's state based on
+/// status info it gets from the computation threads via an `mpsc` channel. The computation threads
+/// send a pair with their unique index and the number of samples, their iterator has left to do.
+/// Whenever `logging()` has gotten such a pair for each of the threads, it will output a log
+/// message. It always waits, til it has received at least one message from all threads, so the log
+/// will be complete.  
+/// If the threads are enough out of sync, that a thread sends multiple messages, while another
+/// hasn't send any, only the newest message will be kept.
+///
+/// There are some special behaviours to keep in mind. `logging()` returns when all threads have
+/// finished, that is, have 0 samples left to compute.  
+/// `logging()` returns an `mpsc::Receiver<(i32,i32)>`. There's a good reason for that, if a
+/// custom timeout has been specified and the timeout is reached, `logging()` will almost certainly
+/// return quite a while *before* the computation threads notice, that the timeout has been
+/// reached. After all the computation threads will finish their current cycle, before re-checking,
+/// so that, even though the timeout generally is respected, no data can be lost or mal-formed.
+/// That also means, that the threads will attempt to send their last pair of logging data after
+/// `logging()` already died. In order not to get an unecessary `panic!` from that, `logging()`
+/// simply returns its end of the channel and expects the calling thread (main) to keep that
+/// `Receiver` alive long enough, for the computation threads to `join()`.
+///
+/// ### Parameters
+/// There's really nothing much to explain there. `timestamp` should be the `Instant` when the
+/// computation was started, so the `timestamp` variable made by `butterbrot_run` right before it
+/// starts creating threads. All the others are pretty obviously named...
+///
 fn logging(
     rx:Receiver<(i32, i32)>,
     width:u64,height:u64,
@@ -364,6 +387,16 @@ fn logging(
                     }
                 });
 
+
+            /*
+             * I'm only half-happy with the way the next three statements work... I do use quite a
+             * lot of iterators, that are folded up or joined up or whatnot and most importantly,
+             * all of them use `cloned()`, which is quite ... ehm ... MEH! ..., to figure out basic
+             * info. I believe That could be done a little more elegantly, but with compiler
+             * optimization and (*mostly*) because of the laziness of the iterators, this shouldn't
+             * really matter much either way...
+             */
+
             // Print status message
             let left = msg.iter()
                 .cloned()
@@ -400,8 +433,8 @@ fn logging(
 
         delta_t = timestamp.elapsed();
 
-        // Don't hog the CPU
-        thread::sleep(Duration::from_millis(200)); // TODO for proper computation this can be a much longer time to wait!
+        // Don't hog the CPU... too much
+        // thread::sleep(Duration::from_millis(200)); // TODO for proper computation this can be a much longer time to wait!
 
     }
 

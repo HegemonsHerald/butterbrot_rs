@@ -1,3 +1,16 @@
+THE birb2bmp TOOL
+=================
+
+  - load a birb from file <- args_parser variant
+  - split it into thread slices <- unsafe
+  - find the largest number from the birb in parallel
+
+  - what's the best approach to create the bitmap...?
+     - single threadedly just compute
+     - multi threaded: replace all the numbers in the birb with their 256 mapped counterparts?, then either use linear write or a mutex or something...
+     - multi threaded: separate tinier bitmaps to merge into one larger one?    <- Can you do that?
+     - multi threaded: one large bitmap with unsafe mutable concurrent slicing? <- Can you do that? This would be the BEST
+
 
 =====================================
 FIX ALL THE TODOS THAT ARE EVERYWHERE
@@ -22,27 +35,13 @@ Write_Back
   - vec[(imaginairy / step_size).floor() + (real / step_size).floor()] += 1
 
 
-Termination Settings
-====================
-
-  - you specify the number of samples to compute
-
-  - you optionally specify a timeout after which the program will definitely terminate, whether it's done or not
-
-  - if you only specify a timeout, the args_parser sets the sample number to integer_max so that as many samples
-    as possible will be computed
-
-  - if you don't specify a timeout, the args_parser doesn't set the timeout flag, so the timeout will be ignored
-
-    let (timeout, runtime, samples) = args_parser(args_v);
-
-    where timeout = true if timeout setting was specified
-	  runtime = the number of seconds (?) to terminate after, if timeout is true
-	  samples = the number of samples to compute
-
-
 Logging output
 ==============
+
+  - Add some grind-down logic, that properly empties the message queue on each cycle of the logging() function,
+    so we don't get any funny business, when we want to add a little bit of sleep time between iterations...
+    (And explain in the comments, why this is good to have, even though not expressly necessary given the immense
+    computational intensity of the Buddahbrot set)
 
   - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
     that was written and whatnot.
