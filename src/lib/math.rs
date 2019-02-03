@@ -14,6 +14,32 @@ impl Complex {
     pub fn new(r:f64, i:f64) -> Complex {
         Complex { r, i }
     }
+
+    #[inline]
+    fn multiply(&self, c:&Complex) -> Complex {
+
+        let r = self.r * c.r - self.i * c.i;
+        let i = self.r * c.i + self.i * c.r;
+
+        Complex::new(r, i)
+
+    }
+
+    #[inline]
+    fn squared(&self) -> Complex {
+        self.multiply(self)
+    }
+
+    #[inline]
+    fn add(&self, c:&Complex) -> Complex {
+
+        let r = self.r + c.r;
+        let i = self.i + c.i;
+
+        Complex::new(r, i)
+
+    }
+
 }
 
 
@@ -25,6 +51,7 @@ impl Complex {
 #[derive(Clone, Copy)]
 pub struct Orbit {
     c: Complex,
+    z: Complex,
     n: i32,
 }
 
@@ -32,14 +59,18 @@ impl Orbit {
 
     /// creates a new `Orbit` starting at `c`, which yields `n` complex numbers
     pub fn new(c:Complex, n:i32) -> Orbit {
-        Orbit { c, n }
+        let z = Complex::new(0f64, 0f64);
+        Orbit { c, z, n }
     }
 
     /// the actual mandelbrot function
     #[inline]
-    fn mandelbrot(c:&Complex) -> Complex {
-        // TODO actual implementation
-        Complex::new(c.r + 3f64, c.i + 3f64)
+    fn mandelbrot(c:&Complex, z:&Complex) -> Complex {
+
+        let zz = z.squared();
+
+        c.add(&zz)
+
     }
 
 }
@@ -56,9 +87,9 @@ impl Iterator for Orbit {
 
             self.n -= 1;
 
-            self.c = Orbit::mandelbrot(&self.c);
+            self.z = Orbit::mandelbrot(&self.c, &self.z);
 
-            return Some(self.c);
+            return Some(self.z);
         }
 
         None
@@ -179,14 +210,14 @@ impl MHOrbits {
     /// Chooses a random complex number not in the Mandelbrot set, but somewhere in its vicinity
     fn rnd_sample() -> Complex {
         // TODO choose an actually random number
-        Complex::new(-100f64, -100f64)
+        Complex::new(-0.25, -0.25)
     }
 
     /// Creates a random complex number not in the Mandelbrot set, by randomly offseting the
     /// complex number `c`
     fn sample_from(c:&Complex) -> Complex {
         // TODO choose a good random number based on the previous random number
-        Complex::new(c.r + 0.5, c.i + 0.5)
+        Complex::new(c.r, c.i)
     }
 
     /// Tells you how many samples are still left from this `MHOrbits`

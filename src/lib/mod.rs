@@ -264,10 +264,12 @@ fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: 
 
     orbit.iter().for_each(|c| {
 
+        // Map the complex number to a number with positive sign, by offsetting it using the lower_bound.
+        // Floor that and turn it to u64, that yields the row and column of the complex number in
+        // the image buffer.
+
         let column = ((c.r + lower_bound.r.abs()) / x_step).floor() as u64;
         let row    = ((c.i + lower_bound.i.abs()) / y_step).floor() as u64;
-
-        // println!("{}", column + row);
 
         supreme_birb[ (column + row * width) as usize ] += 1;
 
@@ -503,5 +505,15 @@ mod tests {
 
     }
 
+    #[test]
+    fn mandelbrot() {
+
+        let orbit = Orbit::new(Complex::new(-0.25,-0.25), 10);
+
+        orbit.for_each(|Complex{ r:r, i:i }| {
+            println!("r: {}, i: {}", r, i);
+        });
+
+    }
 
 }
