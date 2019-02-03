@@ -1,3 +1,13 @@
+// Colors for the output
+const WHITE  :&str = "\x1B[0m";
+const RED    :&str = "\x1B[31m";
+const YELLOW :&str = "\x1B[33m";
+const GREEN  :&str = "\x1B[32m";
+const BLUE   :&str = "\x1B[34m";
+
+// NOTE: the error! macro doesn't use these color constants to make portability to other projects a
+// little bit easier
+
 /// Lil' helper with the errors
 ///
 /// This Macro does an orderly `panic!`, if it is provided with an Error variant of a Result or
@@ -127,7 +137,7 @@ pub fn butterbrot_run(
     let pl        = (width * height + 2) / thread_count as u64;
     let phase_len = if pl > 0 { pl } else { 1 };    // Integer division might yield 0
 
-    // Note: Each thread gets to compute only so many orbits, as to only slightly exceed twice the
+    // NOTE: Each thread gets to compute only so many orbits, as to only slightly exceed twice the
     // size of supreme_birb for total memory consumption
 
     let (log_snd, log_rcv) = channel();
@@ -158,17 +168,13 @@ pub fn butterbrot_run(
         let t = thread::spawn(move || {
 
             // Itsy-bitsy bit of logging directly from here!
-            let white  = "\x1B[0m";
-            let red    = "\x1B[31m";
-            let yellow = "\x1B[33m";
-            let green = "\x1B[32m";
-            println!("Thread {r}{}{w} in WarmUp", thread_index, r=red, w=white);
+            println!("Thread {r}{}{w} in WarmUp", thread_index, r=RED, w=WHITE);
 
             // Create necessary data structures
             let mut orbits: Vec<Vec<math::Complex>> = Vec::with_capacity(phase_len as usize);
             let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, corner_1, corner_2);
 
-            println!("{y}Thread {r}{}{y} now computing payload{w}", thread_index, y=yellow, r=red, w=white);
+            println!("{y}Thread {r}{}{y} now computing payload{w}", thread_index, y=YELLOW, r=RED, w=WHITE);
 
             let mut delta_t = timestamp.elapsed();
 
@@ -209,7 +215,7 @@ pub fn butterbrot_run(
             }
 
             // Itsy-bitsy output on success
-            println!("{g}Thread {} computed its payload{w}", thread_index, w=white, g=green);
+            println!("{g}Thread {} computed its payload{w}", thread_index, w=WHITE, g=GREEN);
 
         });
 
@@ -224,10 +230,7 @@ pub fn butterbrot_run(
     /* Join */
     handles.into_iter().for_each(move |h| h.join().expect("Thread didn't return properly!"));
 
-
-    let white = "\x1B[0m";
-    let green = "\x1B[32m";
-    println!("{g}All threads finished.{w}", w=white, g=green);
+    println!("{g}All threads finished.{w}", w=WHITE, g=GREEN);
 
 }
 
@@ -243,12 +246,9 @@ fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: 
 /// generates a String with the *unchanging* part of the logging output
 fn static_msg(width:u64, height:u64, iterations:i32, sample_count:i32, c1:math::Complex, c2:math::Complex, filename:&str) -> String {
 
-    let white  = "\x1B[0m";
-    let yellow = "\x1B[33m";
-    let blue   = "\x1B[34m";
 
-    let w = format!("width: {y}{0}{w}", width,           w=white, y=yellow);
-    let i = format!("iterations: {y}{0}{w}", iterations, w=white, y=yellow);
+    let w = format!("width: {y}{0}{w}", width,           w=WHITE, y=YELLOW);
+    let i = format!("iterations: {y}{0}{w}", iterations, w=WHITE, y=YELLOW);
 
     // The number of spaces to insert after either 'width' or 'iterations',
     // depending on which is longer...
@@ -265,11 +265,11 @@ fn static_msg(width:u64, height:u64, iterations:i32, sample_count:i32, c1:math::
     // The '{tab:>width$}' parts insert a right aligned tab char after width spaces
 
     format!("{}\n{}\n{}\n{}\n{}",
-            format_args!("{w}{tab:>width$}{h}", w = w, h = format_args!("height: {y}{0}{w}", height,        w=white, y=yellow), tab = "\t", width = w_spaces as usize),
-            format_args!("{i}{tab:>width$}{s}", i = i, s = format_args!("samples: {y}{0}{w}", sample_count, w=white, y=yellow), tab = "\t", width = i_spaces as usize),
-            format_args!("complex1: {{ r: {y}{}{w}, i: {y}{} {w}}}", c1.r, c1.i, w=white, y=yellow),
-            format_args!("complex2: {{ r: {y}{}{w}, i: {y}{} {w}}}", c2.r, c2.i, w=white, y=yellow),
-            format_args!("filename: {b}{}{w}", filename, w=white, b=blue),)
+            format_args!("{w}{tab:>width$}{h}", w = w, h = format_args!("height: {y}{0}{w}", height,        w=WHITE, y=YELLOW), tab = "\t", width = w_spaces as usize),
+            format_args!("{i}{tab:>width$}{s}", i = i, s = format_args!("samples: {y}{0}{w}", sample_count, w=WHITE, y=YELLOW), tab = "\t", width = i_spaces as usize),
+            format_args!("complex1: {{ r: {y}{}{w}, i: {y}{} {w}}}", c1.r, c1.i, w=WHITE, y=YELLOW),
+            format_args!("complex2: {{ r: {y}{}{w}, i: {y}{} {w}}}", c2.r, c2.i, w=WHITE, y=YELLOW),
+            format_args!("filename: {b}{}{w}", filename, w=WHITE, b=BLUE),)
 
 }
 
@@ -279,11 +279,7 @@ fn static_msg(width:u64, height:u64, iterations:i32, sample_count:i32, c1:math::
 /// `data` is the tuple, that comes back from a thread via the mpsc-channel.
 fn thread_msg(data:(i32, i32), total:i32) -> String {
 
-    let white  = "\x1B[0m";
-    let red    = "\x1B[31m";
-    let yellow = "\x1B[33m";
-
-    format!("thread {r}{} {w}{{ done: {y}{1:>8}{w}, left: {y}{2:>8}{w}, percent: {y}{3:>6}% {w}done }}", data.0, total - data.1, data.1, ((total - data.1) as f32 / total as f32) * 100f32, w=white, y=yellow, r=red)
+    format!("thread {r}{} {w}{{ done: {y}{1:>8}{w}, left: {y}{2:>8}{w}, percent: {y}{3:>6}% {w}done }}", data.0, total - data.1, data.1, ((total - data.1) as f32 / total as f32) * 100f32, w=WHITE, y=YELLOW, r=RED)
 
 }
 
@@ -292,9 +288,6 @@ fn thread_msg(data:(i32, i32), total:i32) -> String {
 /// `done` should be the sum number of how many samples all thread have computed so far.  
 /// `total` should be the total number of samples all threads should compute together
 fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> String {
-
-    let white  = "\x1B[0m";
-    let yellow = "\x1B[33m";
 
     let a  = "samples done / total:   ";
     let b  = "percentage done:        ";
@@ -309,7 +302,7 @@ fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> Strin
             b, (done as f32 / total as f32) * 100f32,
             c, ts,
             d, to - ts, to,
-            w=white, y=yellow)
+            w=WHITE, y=YELLOW)
 
 }
 
@@ -364,7 +357,7 @@ fn logging(
 
     while delta_t <= timeout {
 
-        // Try to get a message from the channel
+        // Get all messages in the queue
         while let Ok((a,b)) = rx.try_recv() {
             msg[a as usize] = Some((a,b))
         }
@@ -375,7 +368,7 @@ fn logging(
             println!("\n{}\n", static_message);
 
             // Print thread messages and compute total number of samples remaining
-            // Note: these are two distinct tasks, but using just one iterator is more resource efficient
+            // NOTE: these are two distinct tasks, but using just one iterator is more resource efficient
             let left = msg.iter()
                 .map(|v| { v.unwrap_or((0,0)) })                    // ^1
                 .map(|p| {
