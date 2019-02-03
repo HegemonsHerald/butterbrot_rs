@@ -266,9 +266,10 @@ fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: 
 
     orbit.iter().for_each(|c| {
 
-        let column = (c.r + lower_bound.r.abs() / x_step).floor() as u64;
-        let row    = (c.i + lower_bound.i.abs() / y_step).floor() as u64 * width;
-        println!("{}", column + row);
+        let column = ((c.r + lower_bound.r.abs()) / x_step).floor() as u64;
+        let row    = ((c.i + lower_bound.i.abs()) / y_step).floor() as u64 * width;
+
+        // println!("{}", column + row);
 
         // TODO write the thing into the birb
 

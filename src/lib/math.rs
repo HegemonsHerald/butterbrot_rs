@@ -87,8 +87,8 @@ pub struct MHOrbits {
     iterations: i32,    // how long to make each singular orbit at max
 
     // the rectangle of the complex plane, we wish to explore
-    p1: Complex,
-    p2: Complex,
+    lower_bound: Complex,
+    upper_bound: Complex,
 
 }
 
@@ -113,14 +113,14 @@ impl MHOrbits {
     /// **Note:** The Orbits this iterator yields, will be *computed*, that is, they aren't actually
     /// `Orbit`-type Iterators, but the results of such, collected into `Vec<Complex>`-type
     /// Vectors!
-    pub fn new(sample_count:i32, warmup:i32, iterations:i32, corner_1: Complex, corner_2: Complex) -> MHOrbits {
+    pub fn new(sample_count:i32, warmup:i32, iterations:i32, lower_bound: Complex, upper_bound: Complex) -> MHOrbits {
 
         /* Create a new MHOrbits */
 
         // Create orbit, filter it for 'interesting' numbers, and figure out its length (the actual numbers don't matter, cause warm-up)
         let sample: Complex = MHOrbits::rnd_sample();
         let length = Orbit::new(sample, iterations)
-            .filter(|c| MHOrbits::in_range(c))
+            .filter(|c| MHOrbits::in_range(&c, &lower_bound, &upper_bound))
             .collect::<Vec<Complex>>()              // TURBOOOO FIIIIIISH, YAY =)
             .len() as i32;
 
@@ -132,8 +132,8 @@ impl MHOrbits {
             length,
 
             iterations,
-            p1: corner_1,
-            p2: corner_2,
+            lower_bound,
+            upper_bound,
 
         };
 
@@ -158,9 +158,15 @@ impl MHOrbits {
 
     /// Whether a complex number is in the range, we want to explore, or not
     #[inline]
-    fn in_range(c:&Complex) -> bool {
-        // TODO check for the range of the complex plane
-        true
+    fn in_range(c:&Complex, lower_bound:&Complex, upper_bound:&Complex) -> bool {
+
+        if lower_bound.r <= c.r && c.r < upper_bound.r
+        && lower_bound.i <= c.i && c.i < upper_bound.i {
+            return true
+        }
+
+        false
+
     }
 
     /// Whether or not to discard the current Metropolis-Hastings sample
@@ -173,7 +179,7 @@ impl MHOrbits {
     /// Chooses a random complex number not in the Mandelbrot set, but somewhere in its vicinity
     fn rnd_sample() -> Complex {
         // TODO choose an actually random number
-        Complex::new(42f64, 42f64)
+        Complex::new(-100f64, -100f64)
     }
 
     /// Creates a random complex number not in the Mandelbrot set, by randomly offseting the
@@ -217,7 +223,7 @@ impl Iterator for MHOrbits {
 
                 let s = MHOrbits::sample_from(&self.sample);
                 let o = Orbit::new(s, self.iterations)
-                    .filter(|c| MHOrbits::in_range(c))
+                    .filter(|c| MHOrbits::in_range(c, &self.lower_bound, &self.upper_bound))
                     .collect::<Vec<Complex>>();
 
                 let l = o.len() as i32;
