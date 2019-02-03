@@ -101,7 +101,10 @@ use std::time::{Instant, Duration};
 /// `height` is the height of supreme_birb
 ///
 /// `corner_1` is one of the boundairy points of the frame of the complex plane, that we want to observe  
-/// `corner_2` is the other point
+/// `corner_2` is the other point, diagonally opposite  
+/// *Note,* that the corner points are converted internally into the "lower left" and "upper right"
+/// corner, i.e. the points with the smallest and largest coordinates of the four corners,
+/// respectively.
 ///
 /// `filename` is the filename...
 pub fn butterbrot_run(
@@ -132,6 +135,25 @@ pub fn butterbrot_run(
         (corner_1.r - corner_2.r).abs() / (width  as f64),  // stepsize in x direction
         (corner_1.i - corner_2.i).abs() / (height as f64)   // stepsize in y direction
         ];
+
+    // The Frame, we explore, has four corners.
+    // lower_bound is the corner with the SMALLEST coordinates
+    // upper_bound is the corner with the LARGEST coordinates
+    let (lower_bound, upper_bound) = {
+
+        let (a, b, c, d)  = {
+            match (corner_1.r < corner_2.r, corner_1.i < corner_2.i) {
+                ( true,  true) => (corner_1.r, corner_1.i, corner_2.r, corner_2.i),
+                ( true, false) => (corner_1.r, corner_2.i, corner_2.r, corner_1.i),
+                (false,  true) => (corner_2.r, corner_1.i, corner_1.r, corner_2.i),
+                (false, false) => (corner_2.r, corner_2.i, corner_1.r, corner_1.i),
+            }
+        };
+
+        (math::Complex::new(a, b), math::Complex::new(c, d))
+
+    };
+
 
     // How many orbits to compute per write_back phase in each thread
     let pl        = (width * height + 2) / thread_count as u64;
@@ -172,7 +194,7 @@ pub fn butterbrot_run(
 
             // Create necessary data structures
             let mut orbits: Vec<Vec<math::Complex>> = Vec::with_capacity(phase_len as usize);
-            let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, corner_1, corner_2);
+            let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, lower_bound, upper_bound);
 
             println!("{y}Thread {r}{}{y} now computing payload{w}", thread_index, y=YELLOW, r=RED, w=WHITE);
 
@@ -195,7 +217,7 @@ pub fn butterbrot_run(
 
                 let mut birb = error!(supreme.lock(), "Couldn't acquire Mutex lock");
 
-                orbits.iter().for_each(|o| write_back(o, &mut *birb, step_size));
+                orbits.iter().for_each(|o| write_back(o, &mut *birb, step_size, lower_bound, width));
 
                 orbits.clear(); // so I can reuse this on the next cycle
 
@@ -235,12 +257,23 @@ pub fn butterbrot_run(
 }
 
 // TODO documentation
-fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: [f64; 2]) {
+fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: [f64; 2], lower_bound:math::Complex, width:u64) {
 
-    let ss_x = step_size[0];
-    let ss_y = step_size[1];
+    let x_step = step_size[0];
+    let y_step = step_size[1];
 
-    // TODO implement the thing
+    // TODO acquire mutex lock
+
+    orbit.iter().for_each(|c| {
+
+        let column = (c.r + lower_bound.r.abs() / x_step).floor() as u64;
+        let row    = (c.i + lower_bound.i.abs() / y_step).floor() as u64 * width;
+        println!("{}", column + row);
+
+        // TODO write the thing into the birb
+
+    });
+
 }
 
 /// generates a String with the *unchanging* part of the logging output
