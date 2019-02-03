@@ -19,6 +19,9 @@ fn main() {
         let mut b = error!(birb.lock(), "Something went wrong with the supreme birb buffer's initial configuration!");
         b.push(width);
         b.push(height);
+
+        // Set all counters to 0
+        (0..(width*height)).for_each(|_| { b.push(0) });
     }
 
     butterbrot_run(
@@ -39,7 +42,10 @@ fn main() {
     /* Write data to file */
 
     // acquire the data
-    // birb.into_inner()
+    let birb = error!(birb.lock(), "Couldn't acquire Mutex Lock for writing the birb to a file!");
+
+    birb.iter().enumerate().for_each(|(i,v)| println!("{} {}", i, v));
+
 
 
     /* Finish properly */
