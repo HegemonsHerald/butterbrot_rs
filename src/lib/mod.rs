@@ -370,61 +370,35 @@ fn logging(
         }
 
         // If there are NO Nones among the messages, we can output a new log
-        let b: Option<Vec<_>> = msg.iter().cloned().collect();
-        if b != None {
+        if msg.iter().cloned().collect::<Option<Vec<_>>>() != None {
 
-            // Print static message
             println!("\n{}\n", static_message);
 
-            // Print thread messages
-            msg.iter()
-                .cloned()
-                .for_each(|a| {
-                    match a {
-                        Some(v) => println!("{}", thread_msg(v, thread_samples)),
-                        None    => {},
-                    }
-                });
+            // Print thread messages and compute total number of samples remaining
+            // Note: these are two distinct tasks, but using just one iterator is more resource efficient
+            let left = msg.iter()
+                .map(|v| { v.unwrap_or((0,0)) })                    // ^1
+                .map(|p| {
+                    println!("{}", thread_msg(p, thread_samples));  // print thread message
+                    p
+                }).fold(0, |acc, (_,v)| acc + v);                   // sum up second component of the pairs
 
-
-            /*
-             * I'm only half-happy with the way the next three statements work... I do use quite a
-             * lot of iterators, that are folded up or joined up or whatnot and most importantly,
-             * all of them use `cloned()`, which is quite ... ehm ... MEH! ..., to figure out basic
-             * info. I believe That could be done a little more elegantly, but with compiler
-             * optimization and (*mostly*) because of the laziness of the iterators, this shouldn't
-             * really matter much either way...
-             */
+            // ^1: Will always be Some(pair) cause we only run this code, when all threads sent a
+            // message! The or part of unwrap_or() is quite superfluous, but rust doesn't know that..
 
             // Print status message
-            let left = msg.iter()
-                .cloned()
-                .fold(0, |acc, val| {
-                    match val {
-                        Some((_,v)) => acc+v,
-                        None        => acc,
-                    }});
             println!("\n{}", status_msg(sample_count - left, sample_count, timestamp, timeout));
 
-            // Reset msg to None values
+            // Reset msg to None values, if the thread hasn't reached 0 samples left
             msg = msg.iter()
-                .cloned()
                 .map(|v| {
-                    match v {
-                        Some((a,0)) => Some((a,0)),
-                        _ => None,
-                    }
+                    v.and_then(|(i,s)| if s == 0 { Some((i,s)) } else { None })
                 }).collect();
 
             // Break if all threads have reached 0 samples left
-            // (This changes acc whenever it encounters a pair, that hasn't reached 0, so if all
-            // threads are at 0, the acc will remain 0)
-            if msg.iter().cloned().fold(0i32, |acc, v| {
-                match v {
-                    Some((_,0)) => acc,
-                    _ => acc + 1,
-                }
-            }) == 0 {
+            // If collect() encounters a single None, the entire Option will become None, so only
+            // when ALL threads are at 0 will this yield a Some
+            if msg.iter().cloned().collect::<Option<Vec<_>>>() != None {
                 break
             }
 

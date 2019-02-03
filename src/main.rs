@@ -1,9 +1,7 @@
 mod lib;
 use lib::*;
 use std::sync::{Arc, Mutex};
-use std::thread;
-use std::sync::mpsc::channel;
-use std::time::{Instant, Duration};
+use std::time::Duration;
 
 fn main() {
 
@@ -18,7 +16,7 @@ fn main() {
     let mut birb: Arc<Mutex<Vec<u64>>> = Arc::new(Mutex::new(Vec::with_capacity((width * height + 2) as usize)));
 
     {
-        let mut b = birb.lock().expect("Something went wrong with the supreme birb buffer's initial configuration!");
+        let mut b = error!(birb.lock(), "Something went wrong with the supreme birb buffer's initial configuration!");
         b.push(width);
         b.push(height);
     }
