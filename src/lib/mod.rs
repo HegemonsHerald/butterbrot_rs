@@ -366,7 +366,7 @@ fn logging(
     while delta_t <= timeout {
 
         // Try to get a message from the channel
-        if let Ok((a,b)) = rx.try_recv() {
+        while let Ok((a,b)) = rx.try_recv() {
             msg[a as usize] = Some((a,b))
         }
 
@@ -434,7 +434,7 @@ fn logging(
         delta_t = timestamp.elapsed();
 
         // Don't hog the CPU... too much
-        // thread::sleep(Duration::from_millis(200)); // TODO for proper computation this can be a much longer time to wait!
+        thread::sleep(Duration::from_millis(200)); // TODO for proper computation this can be a much longer time to wait!
 
     }
 
