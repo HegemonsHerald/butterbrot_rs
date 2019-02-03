@@ -256,7 +256,30 @@ pub fn butterbrot_run(
 
 }
 
-// TODO documentation
+/// increases the counters of the birb `supreme_birb`
+///
+/// Reminder: birbs are `Vector`s of counters, each counter representing a tiny rectangle of the
+/// complex plane. We count, how often any given `Orbit` passes through each of these tiny
+/// rectangles -- on average, with random `Orbit`s. Since the birbs represent a part of a 2D plane,
+/// they are divided into rows and columns.
+///
+/// `write_back()` iterates the `Orbit` it's provided with, and maps each of the `Orbit`'s
+/// `Complex` numbers to its corresponding counter in the birb. That counter is accessed by an
+/// index, so this function computes the index and then increases the counter, it finds at the
+/// index.
+///
+/// Computing the index works a little something like this:
+/// 1. offset the `Complex` number with the absolute value of the `lower_bound` of the frame, the
+///    birb represents. That makes all the `Complex` numbers have positive signs, but keeps their
+///    relational relationships the same.
+/// 2. the `r` and `i` fields can be used to represent columns and rows from the birb,
+///    respectively. By dividing them by the `step_size`s for each direction, flooring that, and
+///    converting it to an integer, we get the number of steps, one has to take in either
+///    direction, to get to the counter.
+/// 3. to compute the index into the `Vector` to get the correct counter, we have to multiply the
+///    number of rows, we have to step over, with the number of columns there is, and add to that
+///    the number of columns, we have to step over. To that we add 2, cause the first to numbers in
+///    a birb are reserved for width and height. (This is easier to understand on a piece of paper)
 fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: [f64; 2], lower_bound:math::Complex, width:u64) {
 
     let x_step = step_size[0];
@@ -271,7 +294,7 @@ fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: 
         let column = ((c.r + lower_bound.r.abs()) / x_step).floor() as u64;
         let row    = ((c.i + lower_bound.i.abs()) / y_step).floor() as u64;
 
-        supreme_birb[ (column + row * width) as usize ] += 1;
+        supreme_birb[ ((column + row * width) + 2) as usize ] += 1;
 
     });
 
