@@ -118,10 +118,10 @@ pub fn butterbrot_run(
 
     /* Setup multi-threading and write_back */
 
-    let step_size = (
+    let step_size: [f64;2] = [
         (corner_1.r - corner_2.r).abs() / (width  as f64),  // stepsize in x direction
         (corner_1.i - corner_2.i).abs() / (height as f64)   // stepsize in y direction
-        );
+        ];
 
     // How many orbits to compute per write_back phase in each thread
     let pl        = (width * height + 2) / thread_count as u64;
@@ -161,6 +161,7 @@ pub fn butterbrot_run(
             let white  = "\x1B[0m";
             let red    = "\x1B[31m";
             let yellow = "\x1B[33m";
+            let green = "\x1B[32m";
             println!("Thread {r}{}{w} in WarmUp", thread_index, r=red, w=white);
 
             // Create necessary data structures
@@ -208,8 +209,6 @@ pub fn butterbrot_run(
             }
 
             // Itsy-bitsy output on success
-            let white = "\x1B[0m";
-            let green = "\x1B[32m";
             println!("{g}Thread {} computed its payload{w}", thread_index, w=white, g=green);
 
         });
@@ -220,7 +219,7 @@ pub fn butterbrot_run(
 
 
     /* Logging output */
-    let rx = logging(log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
+    let _rx = logging(log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
 
     /* Join */
     handles.into_iter().for_each(move |h| h.join().expect("Thread didn't return properly!"));
@@ -233,10 +232,10 @@ pub fn butterbrot_run(
 }
 
 // TODO documentation
-fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: (f64, f64)) {
+fn write_back(orbit:&Vec<math::Complex>, supreme_birb:&mut Vec<u64>, step_size: [f64; 2]) {
 
-    let ss_x = step_size.0;
-    let ss_y = step_size.1;
+    let ss_x = step_size[0];
+    let ss_y = step_size[1];
 
     // TODO implement the thing
 }
