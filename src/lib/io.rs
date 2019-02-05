@@ -299,11 +299,11 @@ pub fn read_birb(filename: &str) -> Vec<u64> {
 
     /* Open and read the birb file */
 
-    let mut f = error!(File::open(filename), "Couldn't open file. The specified birb-file doesn't exist or is inaccessible.", 1);
+    let mut f = error!(File::open(filename), "Couldn't open file. The specified birb-file doesn't exist or is inaccessible.", full);
 
     let mut birb_raw: Vec<u8> = Vec::new();
 
-    error!(f.read_to_end(&mut birb_raw), "There was an error while reading the birb file.", 1);
+    error!(f.read_to_end(&mut birb_raw), "There was an error while reading the birb file.", full);
 
 
     /* Convert to u64 */
@@ -375,7 +375,7 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Open file to write to */
 
-    let mut f = error!(File::create(filename), "Couldn't open birb file to write.", 1);
+    let mut f = error!(File::create(filename), "Couldn't open birb file to write.", full);
 
 
     /* Convert from u64 to u8 */
@@ -403,6 +403,6 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Write */
 
-    error!(f.write_all(&birb_raw), "There was an error while writing the birb file", 1);
+    error!(f.write_all(&birb_raw), "There was an error while writing the birb file", full);
 
 }

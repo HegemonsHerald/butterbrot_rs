@@ -17,15 +17,14 @@ const BLUE   :&str = "\x1B[34m";
 /// <pre><code><b style="color:red">Error:</b> Oh no, It gone bad!
 /// </code></pre>
 ///
-/// Use `error!( Err(42), "Noooooooooooooo", 1 )` (or any other valid expression in place of
-/// the `1`) to output something like:
+/// Use `error!( Err(42), "Noooooooooooooo", full )` to output something like:
 /// <pre><code><b style="color:red">Error:</b> Noooooooooooooo
 ///     System Error: 42
 /// </code></pre>
 #[macro_export]
 macro_rules! error {
 
-    ( $result:expr, $msg:expr, $format:expr ) => {
+    ( $result:expr, $msg:expr, full ) => {
 
         { // I wish to run multiple statements, so I need a code block. Last statement will be return value
 
