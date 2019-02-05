@@ -13,7 +13,7 @@ fn main() {
 
     /* Do the actual thing */
 
-    let mut birb: Arc<Mutex<Vec<u64>>> = Arc::new(Mutex::new(Vec::with_capacity((width * height + 2) as usize)));
+    let birb: Arc<Mutex<Vec<u64>>> = Arc::new(Mutex::new(Vec::with_capacity((width * height + 2) as usize)));
 
     {
         let mut b = error!(birb.lock(), "Something went wrong with the supreme birb buffer's initial configuration!");
@@ -41,11 +41,13 @@ fn main() {
 
     /* Write data to file */
 
-    // acquire the data
     let birb = error!(birb.lock(), "Couldn't acquire Mutex Lock for writing the birb to a file!");
 
-    birb.iter().enumerate().for_each(|(i,v)| println!("{} {}", i, v));
+    println!("\nNow writing to file {b}{}{w}", filename, b = "\x1B[34m", w = "\x1B[0m");
+    io::write_birb(&filename, &birb);
+    println!("{g}Successfully wrote to file.{w}", g = "\x1B[32m", w = "\x1B[0m");
 
+    // birb.iter().enumerate().for_each(|(i,v)| println!("{} {}", i, v));
 
 
     /* Finish properly */
