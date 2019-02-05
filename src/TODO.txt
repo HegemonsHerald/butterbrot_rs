@@ -20,3 +20,19 @@ FIX ALL THE TODOS THAT ARE EVERYWHERE
 
 Adding the actual mathematics into the math module...
 =====================================================
+
+Args_Parser
+===========
+
+Consider allowing for the (as it seems) common input mode:
+
+provide an anchor point, width, height and a zoom factor.
+
+The inverse of the zoom factor is the step_size, so you can just go:
+
+step_size = (1/zoom, 1/zoom)
+other_point = { point.r + step_size.0
+                point.i + step_size.1 }
+
+To make this compatible with the code you already got...
+
