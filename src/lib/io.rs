@@ -1,3 +1,5 @@
+extern crate rand;
+
 use std::io::*;
 use std::fs::File;
 use super::math::Complex;
@@ -211,7 +213,7 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
     let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) = (
         (10, 10),
         (Complex::new(-1.5, -1.5), Complex::new(1.5, 1.5)),
-        "birb.birb".to_string(),
+        gen_filename(),
         7,
         (400, 10, 1),
         std::u64::MAX,
@@ -255,6 +257,29 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
     output
 
 }
+
+
+/// generates a partially random filename
+///
+/// `gen_filename()` generates a filename along the pattern `birb_XXXX.birb` where `XXXX` are four
+/// randomly selected uppercase letters from the ASCII set.
+#[inline]
+fn gen_filename() -> String {
+
+    use rand::distributions::Distribution;
+
+    let mut r = rand::thread_rng();
+    let dist  = rand::distributions::Uniform::from(65..90u8);
+
+    let a = dist.sample(&mut r) as char;
+    let b = dist.sample(&mut r) as char;
+    let c = dist.sample(&mut r) as char;
+    let d = dist.sample(&mut r) as char;
+
+    format!("birb_{}{}{}{}.birb", a,b,c,d,)
+
+}
+
 
 
 /// Reads a `.birb` file to `Vec<u64>`.

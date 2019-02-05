@@ -28,14 +28,6 @@ Write_Back
   	- literally just lib::write_back(orbit:&Vec<u64>, supreme:&mut MutexLock)
         - Vec<u64>::with_capacity() and init counters to 0
 
-  - what this entails:
-     1. add filter logic
-     2. double check on paper, that the filter logic will produce ONLY valid indices after complex-to-px conversion
-     3. add init birb function, that initializes the counters to 0
-     4. add write-back logic
-
-  - vec[(imaginairy / step_size).floor() + (real / step_size).floor()] += 1
-
 
 Logging output
 ==============

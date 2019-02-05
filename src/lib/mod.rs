@@ -75,7 +75,6 @@ use std::time::{Instant, Duration};
 
 // TODO proper re-exports
 // TODO make private, what can be private
-// TODO replace error handling with an error handling macro!
 
 /// Computes the Buddahbrot Set multi-threadedly
 ///
