@@ -68,13 +68,12 @@ macro_rules! error {
 
 pub mod io;
 pub mod math;
+
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::sync::mpsc::{channel, Receiver};
 use std::time::{Instant, Duration};
 
-// TODO proper re-exports
-// TODO make private, what can be private
 
 /// Computes the Buddahbrot Set multi-threadedly
 ///
@@ -229,9 +228,6 @@ pub fn butterbrot_run(
                 /* Check the timeout */
 
                 delta_t = timestamp.elapsed();
-
-                // TODO remove this line for PRODUCTION
-                // thread::sleep(Duration::from_secs(1));
 
             }
 

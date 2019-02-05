@@ -20,17 +20,3 @@ FIX ALL THE TODOS THAT ARE EVERYWHERE
 
 Adding the actual mathematics into the math module...
 =====================================================
-
-Write_Back
-==========
-
-  - inside lib:: we'll have functions to do all of this...
-  	- literally just lib::write_back(orbit:&Vec<u64>, supreme:&mut MutexLock)
-        - Vec<u64>::with_capacity() and init counters to 0
-
-
-Logging output
-==============
-
-  - after whole operation is done, before shutdown yield another log-message with the final data, and the filename,
-    that was written and whatnot.
