@@ -253,6 +253,9 @@ impl Iterator for MHOrbits {
                 /* Compute a new sample and orbit */
 
                 let s = MHOrbits::sample_from(&self.sample);
+
+                // TODO Check whether the very last point of the orbit is going off to infinity
+
                 let o = Orbit::new(s, self.iterations)
                     .filter(|c| MHOrbits::in_range(c, &self.lower_bound, &self.upper_bound))
                     .collect::<Vec<Complex>>();

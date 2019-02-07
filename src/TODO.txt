@@ -29,6 +29,26 @@ Adding the actual mathematics into the math module...
     return a random sample
 
 
+  - check the last point using something like this:
+
+      let o =
+      orbit.enumerate()
+           .filter(| (i, c) | {
+
+	      if i+1 == orbit_length { return true }
+
+	      MHOrbits::in_range(c)
+
+	   }).collect()
+
+      /* check for mandelbrottedness */
+
+      if MHOrbits::in_range(o[o.len()-1]) { o.pop() }
+
+    This way we still get the benefit of doing it all in one go, without having to allocate
+    the entire bloody orbit multiple times!
+
+    IT'S VERY IMPORTANT TO REMOVE THE LAST POINT OF THE ORBIT WHEN DOING THIS!
 
 
 Args_Parser
