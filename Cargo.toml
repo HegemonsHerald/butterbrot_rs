@@ -6,3 +6,7 @@ edition = "2018"
 
 [dependencies]
 rand = "0.6.5"
+
+[[bin]]
+name = "butterbrot_rs"
+path = "src/butterbrot.rs"

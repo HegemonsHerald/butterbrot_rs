@@ -21,8 +21,6 @@ FIX ALL THE TODOS THAT ARE EVERYWHERE
 Adding the actual mathematics into the math module...
 =====================================================
 
-  - when finding the samples do a preliminairy check with 1000 iterations, to immediately discard
-    numbers from the mandelbrot set
   - before returning from next() in mh_orbits I have to check, that the orbit isn't inside the
     mandelbrot set. If it is, this is the second situation for having to rechoose the sample
   - have next() randomly try choosing a completely random sample, by having ::from_sample() randomly

@@ -29,6 +29,13 @@ impl Complex {
     }
 
     #[inline]
+    fn abs(&self) -> f64 {
+
+        (self.r.powi(2) + self.i.powi(2)).sqrt()
+
+    }
+
+    #[inline]
     fn squared(&self) -> Complex {
         self.multiply(self)
     }
@@ -191,6 +198,8 @@ impl MHOrbits {
         // nth() **consumes** the first (n-1) elements and yields the nth, which we can promptly ignore!
         mho.nth(warmup as usize);
 
+        println!("Got through Warmup");
+
 
         /* Yield the Warmed-Up Iterator */
 
@@ -218,7 +227,7 @@ impl MHOrbits {
     fn discard(rng:&mut ThreadRng, iterations:i32, len1:i32, len2:i32) -> bool {
 
         let t_prob_1  = MHOrbits::transition_probability(iterations, len1, len2);
-        let t_prob_2 = MHOrbits::transition_probability(iterations, len2, len1);
+        let t_prob_2  = MHOrbits::transition_probability(iterations, len2, len1);
         let contrib_1 = MHOrbits::contribution(iterations, len1);
         let contrib_2 = MHOrbits::contribution(iterations, len2);
 
@@ -229,14 +238,16 @@ impl MHOrbits {
 
         let r = rng.gen_range(0f64, 1f64);
 
-        alpha > r
+        alpha < r
 
     }
 
     /// How strongly a particular `Orbit` contributes, as a percentage from its maximum length
     #[inline]
     fn contribution(iterations:i32, len:i32) -> f64 {
+
         len as f64 / iterations as f64
+
     }
 
     #[inline]
@@ -250,9 +261,19 @@ impl MHOrbits {
     /// Chooses a random complex number not in the Mandelbrot set, but somewhere in its vicinity
     #[inline]
     fn rnd_sample(rng:&mut ThreadRng) -> Complex {
-        let a = rng.gen_range(-2f64, 2f64);
-        let b = rng.gen_range(-2f64, 2f64);
-        Complex::new(a, b)
+        loop {
+
+            let real = rng.gen_range(-2f64, 2f64);
+            let imag = rng.gen_range(-2f64, 2f64);
+            let c = Complex::new(real, imag);
+
+            // Figure out, if c is inside the mandelbrot set:
+            let o = Orbit::new(c, 400);
+            if o.last().unwrap().abs() < 2f64 { continue }
+            else { return c }
+
+        }
+
     }
 
     /// Creates a random complex number not in the Mandelbrot set, by randomly offseting the
@@ -327,9 +348,23 @@ impl Iterator for MHOrbits {
 
                 // TODO Check whether the very last point of the orbit is going off to infinity
 
-                let o = Orbit::new(s, self.iterations)
-                    .filter(|c| MHOrbits::in_range(c, &self.lower_bound, &self.upper_bound))
+                let mut o = Orbit::new(s, self.iterations)
+//                    .enumerate()
+//                    .filter(|(i,c)| {
+//                        if i+1 == self.iterations as usize { return true }
+                      .filter(|c| {
+                        MHOrbits::in_range(c, &self.lower_bound, &self.upper_bound)
+                    })
+//                    .map(|(_,c)| c)
                     .collect::<Vec<Complex>>();
+
+                // If the sample still turns out to be bad...
+//                let last = o[o.len()-1];
+//                if last.abs() < 2f64 {
+//                    continue;
+//                } else if !MHOrbits::in_range(&last, &self.lower_bound, &self.upper_bound) {
+//                    o.pop();
+//                }
 
                 let l = o.len() as i32;
 
@@ -337,8 +372,10 @@ impl Iterator for MHOrbits {
                 /* Maybe discard it? */
 
                 if MHOrbits::discard(&mut self.rng, self.iterations, l, self.length) {
+                    // println!("discarded");
                     continue;
                 } else {
+                    // println!("SUCCESS");
                     self.sample = s;
                     self.length = l;
 
