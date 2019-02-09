@@ -380,23 +380,27 @@ pub fn write_birb(filename: &str, birb: &Vec<u64>) {
 
     /* Convert from u64 to u8 */
 
+    // Turns out, this can't actually be done using from_raw_parts() cause when you create
+    // a Vec like that, the data might get changed or corrupted. That happened here....
 
-    // Make a u8 pointer to the birb
-    let ptr  = birb.as_ptr();
-    let ptr8 = ptr as *mut u8;
 
-    // Length for the u8 vector, equal to capacity
-    let length = birb.len() * 8;
+    let mut birb_raw:Vec<u8> = Vec::with_capacity(birb.len()*8);
 
-    let birb_raw;
+    for n in birb.iter() {
 
-    unsafe {
+        // Get a u8 pointer to the data
+        let ptr64 = n as *const u64;
+        let ptr8  = ptr64 as *const u8;
 
-        // Make a new vector, but like, u8
-        birb_raw = Vec::from_raw_parts(ptr8, length, length);
+        // a u64 is made from 8 u8 values
+        for offset in 0..8 {
 
-        // No need to explicitely drop birb_raw, it goes out of scope with the end of this
-        // function!
+            unsafe {
+                let ptr = ptr8.clone().offset(offset);
+                birb_raw.push(*ptr);
+            }
+
+        }
 
     }
 

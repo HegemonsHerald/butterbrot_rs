@@ -17,11 +17,13 @@ fn main() {
 
     {
         let mut b = error!(birb.lock(), "Something went wrong with the supreme birb buffer's initial configuration!");
-        b.push(width);
-        b.push(height);
 
         // Set all counters to 0
-        (0..(width*height)).for_each(|_| { b.push(0) });
+        (0..(width*height + 2)).for_each(|_| { b.push(0) });
+
+        b[0] = width;
+        b[1] = height;
+
     }
 
     butterbrot_run(
@@ -47,7 +49,7 @@ fn main() {
     io::write_birb(&filename, &birb);
     println!("{g}Successfully wrote to file.{w}", g = "\x1B[32m", w = "\x1B[0m");
 
-    // birb.iter().enumerate().for_each(|(i,v)| println!("{} {}", i, v));
+    birb.iter().enumerate().for_each(|(i,v)| println!("{} {}", i, v));
 
 
     /* Finish properly */

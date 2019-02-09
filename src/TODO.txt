@@ -18,35 +18,16 @@ FIX ALL THE TODOS THAT ARE EVERYWHERE
 
   - make the defaults and the help text align
 
-Adding the actual mathematics into the math module...
-=====================================================
 
-  - before returning from next() in mh_orbits I have to check, that the orbit isn't inside the
-    mandelbrot set. If it is, this is the second situation for having to rechoose the sample
-  - have next() randomly try choosing a completely random sample, by having ::from_sample() randomly
-    return a random sample
+Fixing the mathematics from the math module...
+==============================================
 
+  - Checking, whether the very last number is in or out, massively affects the result.
+    This is quite strange and should be explored (and possibly fixed) using birb2img.
+    Hypothesis: the double check, that an orbit is in or out, makes a huge difference for short orbits.
+    That seems to be it, indeed.
+    Which version is the "true" Buddhabrot set will be revealed by birb2img...
 
-  - check the last point using something like this:
-
-      let o =
-      orbit.enumerate()
-           .filter(| (i, c) | {
-
-	      if i+1 == orbit_length { return true }
-
-	      MHOrbits::in_range(c)
-
-	   }).collect()
-
-      /* check for mandelbrottedness */
-
-      if MHOrbits::in_range(o[o.len()-1]) { o.pop() }
-
-    This way we still get the benefit of doing it all in one go, without having to allocate
-    the entire bloody orbit multiple times!
-
-    IT'S VERY IMPORTANT TO REMOVE THE LAST POINT OF THE ORBIT WHEN DOING THIS!
 
 
 Args_Parser

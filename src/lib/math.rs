@@ -282,7 +282,8 @@ impl MHOrbits {
     fn sample_from(rng:&mut ThreadRng, step_size:[f64;2], c:&Complex) -> Complex {
 
         // Randomness every now and so often!
-        if rng.gen_range(0,5) > 4 {
+        // NOTE gen_range(low,high) with inclusive low and exclusive high
+        if rng.gen_range(0,6) > 4 {
 
             return MHOrbits::rnd_sample(rng);
 
@@ -349,22 +350,22 @@ impl Iterator for MHOrbits {
                 // TODO Check whether the very last point of the orbit is going off to infinity
 
                 let mut o = Orbit::new(s, self.iterations)
-//                    .enumerate()
-//                    .filter(|(i,c)| {
-//                        if i+1 == self.iterations as usize { return true }
-                      .filter(|c| {
+                    .enumerate()
+                    .filter(|(i,c)| {
+                        if i+1 == self.iterations as usize { return true }
+//                      .filter(|c| {
                         MHOrbits::in_range(c, &self.lower_bound, &self.upper_bound)
                     })
-//                    .map(|(_,c)| c)
+                    .map(|(_,c)| c)
                     .collect::<Vec<Complex>>();
 
                 // If the sample still turns out to be bad...
-//                let last = o[o.len()-1];
-//                if last.abs() < 2f64 {
-//                    continue;
-//                } else if !MHOrbits::in_range(&last, &self.lower_bound, &self.upper_bound) {
-//                    o.pop();
-//                }
+                let last = o[o.len()-1];
+                if last.abs() < 2f64 {
+                    continue;
+                } else if !MHOrbits::in_range(&last, &self.lower_bound, &self.upper_bound) {
+                    o.pop();
+                }
 
                 let l = o.len() as i32;
 
