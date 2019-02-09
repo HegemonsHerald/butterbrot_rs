@@ -414,16 +414,6 @@ fn logging(
         }
 
         // If there are NO Nones among the messages, we can output a new log
-
-        // Here is an alternate way of figuring out, whether there are enough messages or not:
-        // Simply count, how many messages there are, and compare that to the expected number.
-        // if msg.iter().filter_map(|&v| v).count() == threads as usize { println!("Halelujah") }
-
-        // Here is the implementation, that turns the list of Maybe Monads into a Maybe Monad of a
-        // list:
-        // if msg.iter().cloned().collect::<Option<Vec<_>>>() != None {
-
-        // And here is the shortest and neatest version, yet:
         if !msg.iter().any(|&v| v == None) {
 
             println!("\n{}\n", static_message);
@@ -431,7 +421,7 @@ fn logging(
             // Print thread messages and compute total number of samples remaining
             // NOTE: these are two distinct tasks, but using just one iterator is more resource efficient
             let left = msg.iter()
-                .filter_map(|v| *v)                                             // turn the options into just values
+                .filter_map(|v| *v)                                             // turn the options into just their values
                 .inspect(|p| println!("{}", thread_msg(*p, thread_samples)))    // print thread message
                 .fold(0, |acc, (_,v)| acc + v);                                 // sum up second component of the pairs
 
@@ -446,15 +436,8 @@ fn logging(
                 .collect();
 
 
-            // Break if all threads have reached 0 samples left
-
-            // This, too, has a monadic implementation based around a Maybe of a List:
-            // If collect() encounters a single None, the entire Option will become None, so only
-            // when ALL threads are at 0 will this yield a Some
-            // if msg.iter().cloned().collect::<Option<Vec<_>>>() != None {
-
-            // When all threads have reached 0 samples remaining, then after the previous statement
-            // all messages will be a Some variant
+            // Break, if there's nothing left to do
+            // After the previous statement all messages will be a Some variant, if all threads are at 0 samples remaining
             if !msg.iter().any(|&v| v == None) {
                 break
             }
