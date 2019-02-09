@@ -465,7 +465,13 @@ mod tests {
     fn read_write() {
 
         /* Try and read the birb file */
-        let buffer: Vec<u64> = read_birb("foo.birb");
+        let buffer: Vec<u64> = read_birb("/home/work/Documents/github/HegemonsHerald/butterbrot_rs/src/foo.birb");
+
+        buffer.iter().enumerate().for_each(|(i,v)| {
+
+            println!("{} {}", i, v);
+
+        })
 
         /* Try and write the birb file */
         write_birb("birb.birb", &buffer);
@@ -504,10 +510,9 @@ mod tests {
     #[test]
     fn mh_orbits_struct() {
 
-        let mut mh_orbit = MHOrbits::new(5, 30, 4, [0.2f64,0.002f64], Complex::new(-1f64, -7.0), Complex::new(10.0, 10.0));
+        let mh_orbit = MHOrbits::new(5, 30, 4, [0.2f64,0.002f64], Complex::new(-1f64, -7.0), Complex::new(10.0, 10.0));
 
         for i in mh_orbit {
-            let mut vv: Vec<Complex>;
             println!(":=========================================:");
 
             for j in i {
@@ -523,7 +528,7 @@ mod tests {
 
         let orbit = Orbit::new(Complex::new(-0.25,-0.25), 10);
 
-        orbit.for_each(|Complex{ r:r, i:i }| {
+        orbit.for_each(|Complex{ r, i }| {
             println!("r: {}, i: {}", r, i);
         });
 
