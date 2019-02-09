@@ -191,7 +191,7 @@ pub fn butterbrot_run(
 
             // Create necessary data structures
             let mut orbits: Vec<Vec<math::Complex>> = Vec::with_capacity(phase_len as usize);
-            let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, lower_bound, upper_bound);
+            let mut mh_orbits = math::MHOrbits::new(thread_samples, warmup, iterations, step_size, lower_bound, upper_bound);
 
             println!("{y}Thread {r}{}{y} now computing payload{w}", thread_index, y=YELLOW, r=RED, w=WHITE);
 
@@ -504,7 +504,7 @@ mod tests {
     #[test]
     fn mh_orbits_struct() {
 
-        let mut mh_orbit = MHOrbits::new(5, 30, 4, Complex::new(-1f64, -7.0), Complex::new(10.0, 10.0));
+        let mut mh_orbit = MHOrbits::new(5, 30, 4, [0.2f64,0.002f64], Complex::new(-1f64, -7.0), Complex::new(10.0, 10.0));
 
         for i in mh_orbit {
             let mut vv: Vec<Complex>;

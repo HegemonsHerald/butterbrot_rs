@@ -1,3 +1,6 @@
+extern crate rand;
+use rand::Rng;
+use rand::prelude::ThreadRng;
 
 /* The Complex Number Type */
 
@@ -120,6 +123,9 @@ pub struct MHOrbits {
     // the rectangle of the complex plane, we wish to explore
     lower_bound: Complex,
     upper_bound: Complex,
+    step_size: [f64; 2],
+
+    rng: ThreadRng,
 
 }
 
@@ -144,12 +150,15 @@ impl MHOrbits {
     /// **Note:** The Orbits this iterator yields, will be *computed*, that is, they aren't actually
     /// `Orbit`-type Iterators, but the results of such, collected into `Vec<Complex>`-type
     /// Vectors!
-    pub fn new(sample_count:i32, warmup:i32, iterations:i32, lower_bound: Complex, upper_bound: Complex) -> MHOrbits {
+    pub fn new(sample_count:i32, warmup:i32, iterations:i32, step_size:[f64;2], lower_bound: Complex, upper_bound: Complex) -> MHOrbits {
 
         /* Create a new MHOrbits */
 
+        // Create a random number generator for choosing samples
+        let mut rng = rand::thread_rng();
+
         // Create orbit, filter it for 'interesting' numbers, and figure out its length (the actual numbers don't matter, cause warm-up)
-        let sample: Complex = MHOrbits::rnd_sample();
+        let sample: Complex = MHOrbits::rnd_sample(&mut rng);
         let length = Orbit::new(sample, iterations)
             .filter(|c| MHOrbits::in_range(&c, &lower_bound, &upper_bound))
             .collect::<Vec<Complex>>()              // TURBOOOO FIIIIIISH, YAY =)
@@ -165,6 +174,9 @@ impl MHOrbits {
             iterations,
             lower_bound,
             upper_bound,
+            step_size,
+
+            rng,
 
         };
 
@@ -201,23 +213,82 @@ impl MHOrbits {
     }
 
     /// Whether or not to discard the current Metropolis-Hastings sample
+    /// This is a front-end to the TransitionProbability function from the reference
     #[inline]
-    fn discard(sample1:&Complex, len1:i32, sample2:&Complex, len2:i32) -> bool {
-        // TODO impl logic for choosing to transition or not
-        false
+    fn discard(rng:&mut ThreadRng, iterations:i32, len1:i32, len2:i32) -> bool {
+
+        let t_prob_1  = MHOrbits::transition_probability(iterations, len1, len2);
+        let t_prob_2 = MHOrbits::transition_probability(iterations, len2, len1);
+        let contrib_1 = MHOrbits::contribution(iterations, len1);
+        let contrib_2 = MHOrbits::contribution(iterations, len2);
+
+        let a = (contrib_1 * t_prob_1).log10();
+        let b = (contrib_2 * t_prob_2).log10();
+        let c = (a-b).exp();
+        let alpha = 1f64.min(c);
+
+        let r = rng.gen_range(0f64, 1f64);
+
+        alpha > r
+
+    }
+
+    /// How strongly a particular `Orbit` contributes, as a percentage from its maximum length
+    #[inline]
+    fn contribution(iterations:i32, len:i32) -> f64 {
+        len as f64 / iterations as f64
+    }
+
+    #[inline]
+    fn transition_probability(iterations:i32, len1:i32, len2:i32) -> f64 {
+
+        (1f64 - (iterations - len1) as f64 / iterations as f64) /
+        (1f64 - (iterations - len2) as f64 / iterations as f64)
+
     }
 
     /// Chooses a random complex number not in the Mandelbrot set, but somewhere in its vicinity
-    fn rnd_sample() -> Complex {
-        // TODO choose an actually random number
-        Complex::new(-0.25, -0.25)
+    #[inline]
+    fn rnd_sample(rng:&mut ThreadRng) -> Complex {
+        let a = rng.gen_range(-2f64, 2f64);
+        let b = rng.gen_range(-2f64, 2f64);
+        Complex::new(a, b)
     }
 
     /// Creates a random complex number not in the Mandelbrot set, by randomly offseting the
     /// complex number `c`
-    fn sample_from(c:&Complex) -> Complex {
-        // TODO choose a good random number based on the previous random number
-        Complex::new(c.r, c.i)
+    #[inline]
+    fn sample_from(rng:&mut ThreadRng, step_size:[f64;2], c:&Complex) -> Complex {
+
+        // Randomness every now and so often!
+        if rng.gen_range(0,5) > 4 {
+
+            return MHOrbits::rnd_sample(rng);
+
+        }
+
+        // Compute offset factors for real and imaginairy parts
+
+        // Factors that make the offset depend on the step_size
+        let r1 = 1f64 / (1f64 / step_size[0]) * 0.0001;
+        let r2 = 1f64 / (1f64 / step_size[0]) * 0.01;
+        let i1 = 1f64 / (1f64 / step_size[1]) * 0.0001;
+        let i2 = 1f64 / (1f64 / step_size[1]) * 0.01;
+
+        // Actual Factors for weighting the random offset
+        let r_real = r1 * -(r2/r1).log10() * rng.gen_range(0f64,1f64);
+        let r_imag = i1 * -(i2/i1).log10() * rng.gen_range(0f64,1f64);
+
+        // Get a nice random factor
+        let phi = rng.gen_range(0f64,1f64) * std::f64::consts::PI * 2f64;
+
+
+        // Create the new Complex number
+        let real = c.r + r_real * phi.cos();
+        let imag = c.i + r_imag * phi.sin();
+
+        Complex::new(real, imag)
+
     }
 
     /// Tells you how many samples are still left from this `MHOrbits`
@@ -252,7 +323,7 @@ impl Iterator for MHOrbits {
 
                 /* Compute a new sample and orbit */
 
-                let s = MHOrbits::sample_from(&self.sample);
+                let s = MHOrbits::sample_from(&mut self.rng, self.step_size, &self.sample);
 
                 // TODO Check whether the very last point of the orbit is going off to infinity
 
@@ -265,7 +336,7 @@ impl Iterator for MHOrbits {
 
                 /* Maybe discard it? */
 
-                if MHOrbits::discard(&s, l, &self.sample, self.length) {
+                if MHOrbits::discard(&mut self.rng, self.iterations, l, self.length) {
                     continue;
                 } else {
                     self.sample = s;
