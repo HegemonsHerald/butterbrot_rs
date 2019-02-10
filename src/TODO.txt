@@ -34,29 +34,6 @@ other_point = { point.r + step_size.0
 To make this compatible with the code you already got...
 
 
-
-1. Is there a way to improve the sampling? cause it seems oddly asymmetrical
-2. If you want to render a large image, YOU HAVE TO SPLIT IT INTO SMALLER IMAGES AND COMPOSE THEM.
-   The Computer only has 16Gb RAM, and at 1200x1200 with 10000 iterations it does start to break down...
 3. Combine that with the birb_combinator and you're golden! Maximum pay for maximum investment.
    THAT SETTLES IT THEN: I AM INDEED GOING TO WRITE A BIRB_COMBINATOR PROGRAM
    Might as well write a little shell script, that will handle the tiling, by mapping integers to the floaty strings or sth...
-
-Now, to make this feasable and to get that 50000 iterations render:
-
-  - run the program with only small sample_sizes
-  - try running the program with less and more threads, see if that affects mem use
-
-  - the image resolution controls the maximum mem use: all threads are going to have
-    a little more than twice as much mem use, as the entire image buffer. That little
-    more is going to be huge for large sample numbers and lots of iterations.
-    That may not be a good idea.
-    I probably should add a way to decouple the write_back controls and add that
-    as a command line flag: have the thread setup work with lower image_size values
-    as a memory reference, and then have the image still be mapped over to the entire
-    full resolution buffer, basically decouple the mapping from the mem-control!
-
-
-
-SUPER SIMPLE SOLUTION TO THE MEMORY PROBLEM: ADD PHASE_LEN AS A COMMAND LINE FLAG, THAT IS DEFAULT COMPUTED
-FROM THE THREAD_COUNT AND THE BUFFER SIZE BUT CAN BE OVERRIDDEN!

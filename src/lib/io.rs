@@ -185,8 +185,8 @@ macro_rules! parse {
 ///     (complex1, complex2),
 ///     filename,
 ///     thread count,
-///     (samples, iterations, warmup),
-///     timeout
+///     (samples, iterations, warmup, phase_len),
+///     (timeout, loggin_interval)
 /// )
 /// ```
 /// For what these mean, see the helptext and the docs of `butterbrot_run` (which takes most of
@@ -202,21 +202,21 @@ macro_rules! parse {
 /// the project's needs and adapt the `parse!` macro to reflect the new parsing needs (that
 /// shouldn't be hard: take out the bit about `math::Complex`, and add whatever rules and variants
 /// of rules you need and you're good to go), and this should be fine. Piece of cake.
-pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) {
+pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32,i32), (u64,u64) ) {
 
     let mut args = args_v.into_iter();
     args.next();    // skip the name of the application
 
     // TODO make the defaults and the help text align
     // output has the format:
-    // ( (width, height), (c1, c2), filename, thread_count, (samples, iterations, warmup), timeout )
-    let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) = (
+    // ( (width, height), (c1, c2), filename, thread_count, (samples, iterations, warmup, phase_len), (timeout, logging_interval) )
+    let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32,i32), (u64,u64) ) = (
         (10, 10),
         (Complex::new(-2.0, -2.0), Complex::new(2.0, 2.0)),
         gen_filename(),
         7,
-        (400, 10, 100),
-        std::u64::MAX,
+        (400, 10, 100, 10_000),
+        (std::u64::MAX,10),
         );
 
     let mut next;
@@ -232,18 +232,20 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
         // Parse the flag and its arguments
         match next.as_ref() {
 
-            "--width"      | "-w"  => { (output.0).0 = parse!("--width",      args, u64)     },
-            "--height"     | "-h"  => { (output.0).1 = parse!("--height",     args, u64)     },
-            "--warmup"     | "-wu" => { (output.4).2 = parse!("--warmup",     args, i32)     },
-            "--timeout"    | "-to" => {  output.5    = parse!("--timeout",    args, u64)     },
-            "--filename"   | "-o"  => {  output.2    = parse!("--filename",   args, string)  },
-            "--threads"    | "-t"  => {  output.3    = parse!("--threads",    args, i32)     },
-            "--samples"    | "-s"  => { (output.4).0 = parse!("--samples",    args, i32)     },
-            "--complex1"   | "-c1" => { (output.1).0 = parse!("--complex1",   args, complex) },
-            "--complex2"   | "-c2" => { (output.1).1 = parse!("--complex2",   args, complex) },
-            "--iterations" | "-i"  => { (output.4).1 = parse!("--iterations", args, i32)     },
-            "--help"       | "h"   => {
-                println!("USAGE:\n\n  butterbrot [ARGUMENTS]\n\n\nPOSSIBLE FLAGS AND WHAT THEY MEAN:\n\n  h, --help\n        Display this help text.\n\n  -o, --filename <filename>\n        The filename to write the computed data to. This will be a birb file.\n\n        Default: birb_{{rand}}.birb, where {{rand}} will be turned into a random\n        string, to insure the file is available.\n\n  -t, --threads <number>\n        How many threads to use for parallel computation. Note, that this is the\n        number of computation threads. The total number of threads is one\n        larger, as this doesn't include the main thread.  This works better, if\n        the total number of threads doesn't exceed the number of available\n        cores.\n\n        Default: 7\n\n  -to, --timeout <seconds>\n        How many whole seconds to run AT MINIMUM, before the program terminates\n        the computation. Note, that the program will finish some time after the\n        timeout has been reached, as each thread will finish the currently\n        active computation before returning.\n        If no timeout is specified this value will be set to the larges possible\n        unsigned 64-Bit integer, a number of seconds, that is unlikely to be\n        reached, while computation is active.\n\n  -w, --width <number>\n        How wide to make the birb.\n\n        Default: 100\n\n  -h, --height <number>\n        How tall to make the birb.\n\n        Default: 100\n\n  -wu, --warmup <number>\n        How many samples should the Metropolis-Hastings Iterators discard as\n        warmup. See documentation for more.\n\n        Default: 1000\n\n  -s, --samples <number>\n        How many samples should the program compute in total, across all\n        threads. This does not include the warmup.\n\n        Default: 10000\n\n  -i, --iterations <number>\n        How many iterations long should each Orbit be at max. See documentation\n        for more.\n\n        Default: 100\n\n  -c1, --complex1 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: -2.0 -2.0\n\n  -c2, --complex2 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: 2.0 2.0");
+            "--width"      | "-w"   => { (output.0).0 = parse!("--width",      args, u64)     },
+            "--height"     | "-h"   => { (output.0).1 = parse!("--height",     args, u64)     },
+            "--warmup"     | "-wu"  => { (output.4).2 = parse!("--warmup",     args, i32)     },
+            "--timeout"    | "-to"  => { (output.5).0 = parse!("--timeout",    args, u64)     },
+            "--interval"   | "-int" => { (output.5).1 = parse!("--interval",   args, u64)     },
+            "--filename"   | "-o"   => {  output.2    = parse!("--filename",   args, string)  },
+            "--threads"    | "-t"   => {  output.3    = parse!("--threads",    args, i32)     },
+            "--samples"    | "-s"   => { (output.4).0 = parse!("--samples",    args, i32)     },
+            "--complex1"   | "-c1"  => { (output.1).0 = parse!("--complex1",   args, complex) },
+            "--complex2"   | "-c2"  => { (output.1).1 = parse!("--complex2",   args, complex) },
+            "--phase_len"  | "-p"   => { (output.4).3 = parse!("--phase_len",  args, i32)     },
+            "--iterations" | "-i"   => { (output.4).1 = parse!("--iterations", args, i32)     },
+            "--help"       | "h"    => {
+                println!("USAGE:\n\n  butterbrot [ARGUMENTS]\n\n\nPOSSIBLE FLAGS AND WHAT THEY MEAN:\n\n  h, --help\n        Display this help text.\n\n  -o, --filename <filename>\n        The filename to write the computed data to. This will be a birb file.\n\n        Default: birb_{{rand}}.birb, where {{rand}} will be turned into a random\n        string, to insure the file is available.\n\n  -t, --threads <number>\n        How many threads to use for parallel computation. Note, that this is the\n        number of computation threads. The total number of threads is one\n        larger, as this doesn't include the main thread.  This works better, if\n        the total number of threads doesn't exceed the number of available\n        cores.\n\n        Default: 7\n\n  -to, --timeout <seconds>\n        How many whole seconds to run AT MINIMUM, before the program terminates\n        the computation. Note, that the program will finish some time after the\n        timeout has been reached, as each thread will finish the currently\n        active computation before returning.\n        If no timeout is specified this value will be set to the larges possible\n        unsigned 64-Bit integer, a number of seconds, that is unlikely to be\n        reached, while computation is active.\n\n  -int, --interval <seconds>\n        The logging function will attempt to output a log only after <seconds>\n        seconds have elapsed.\n\n        Default: 10\n\n  -w, --width <number>\n        How wide to make the birb.\n\n        Default: 100\n\n  -h, --height <number>\n        How tall to make the birb.\n\n        Default: 100\n\n  -wu, --warmup <number>\n        How many samples should the Metropolis-Hastings Iterators discard as\n        warmup. See documentation for more.\n\n        Default: 1000\n\n  -s, --samples <number>\n        How many samples should the program compute in total, across all\n        threads. This does not include the warmup.\n\n        Default: 10000\n\n  -i, --iterations <number>\n        How many iterations long should each Orbit be at max. See documentation\n        for more.\n\n        Default: 100\n\n  -p, --phase_len <number>\n        How many Metropolis Hastings Orbits each thread computes before calling\n        write_back -- The length of a write_back phase.\n\n        Default: 10000\n\n  -c1, --complex1 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: -2.0 -2.0\n\n  -c2, --complex2 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: 2.0 2.0\n\n");
                 std::process::exit(0);
 
             },

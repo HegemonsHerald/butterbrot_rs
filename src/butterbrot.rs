@@ -7,8 +7,10 @@ fn main() {
 
     /* Parse Arguments */
 
-    let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup), to) = io::parse_args(std::env::args().collect());
-    let timeout = Duration::from_secs(to);
+    let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup, phase_len), (to,int)) = io::parse_args(std::env::args().collect());
+
+    let timeout          = Duration::from_secs(to);
+    let logging_interval = Duration::from_secs(int);
 
     // Used to compute the 'total' time taken...
     let outer_timestamp = Instant::now();
@@ -32,9 +34,11 @@ fn main() {
     butterbrot_run(
         Arc::clone(&birb),
         timeout,
+        logging_interval,
         thread_count,
         sample_count,
         iterations,
+        phase_len,
         warmup,
         width,
         height,

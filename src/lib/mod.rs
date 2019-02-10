@@ -109,12 +109,14 @@ pub fn butterbrot_run(
     supreme_birb:Arc<Mutex<Vec<u64>>>,
 
     timeout: Duration,
+    logging_interval: Duration,
 
     thread_count:i32,
 
     sample_count:i32,
     iterations:i32,
     warmup:i32,
+    phase_len:i32,
 
     width: u64,
     height: u64,
@@ -150,15 +152,6 @@ pub fn butterbrot_run(
         (math::Complex::new(a, b), math::Complex::new(c, d))
 
     };
-
-
-    // How many orbits to compute per write_back phase in each thread
-    let pl        = (width * height + 2) / thread_count as u64;
-    //let phase_len = if pl > 0 { pl } else { 1 };    // Integer division might yield 0
-    let phase_len = 500;
-
-    // NOTE: Each thread gets to compute only so many orbits, as to only slightly exceed twice the
-    // size of supreme_birb for total memory consumption
 
     let (log_snd, log_rcv) = channel();
 
@@ -242,7 +235,7 @@ pub fn butterbrot_run(
 
 
     /* Logging output */
-    let _rx = logging(log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
+    let _rx = logging(logging_interval, log_rcv, width, height, thread_count, sample_count, iterations, corner_1, corner_2, filename, timestamp, timeout);
 
     /* Join */
     handles.into_iter().for_each(move |h| h.join().expect("Thread didn't return properly!"));
@@ -370,6 +363,10 @@ fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> Strin
 /// If the threads are enough out of sync, that a thread sends multiple messages, while another
 /// hasn't send any, only the newest message will be kept.
 ///
+/// Furthermore, `logging()` has an in-built timer, which can be set from the command line. It will
+/// only output a message, when it received data from all threads, *and* enough time since the last
+/// print has elapsed.
+///
 /// There are some special behaviours to keep in mind. `logging()` returns when all threads have
 /// finished, that is, have 0 samples left to compute.  
 /// `logging()` returns an `mpsc::Receiver<(i32,i32)>`. There's a good reason for that, if a
@@ -388,6 +385,7 @@ fn status_msg(done:i32, total:i32, timestamp:Instant, timeout:Duration) -> Strin
 /// starts creating threads. All the others are pretty obviously named...
 ///
 fn logging(
+    interval:Duration,
     rx:Receiver<(i32, i32)>,
     width:u64,height:u64,
     threads:i32,
@@ -447,8 +445,9 @@ fn logging(
 
         delta_t = timestamp.elapsed();
 
-        // Don't hog the CPU... too much
-        thread::sleep(Duration::from_millis(200)); // TODO for proper computation this can be a much longer time to wait!
+        // Don't hog the CPU... too much...
+        // And don't print billions of characters... all the time...
+        thread::sleep(interval);
 
     }
 

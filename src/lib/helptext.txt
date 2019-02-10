@@ -11,7 +11,7 @@ POSSIBLE FLAGS AND WHAT THEY MEAN:
   -o, --filename <filename>
         The filename to write the computed data to. This will be a birb file.
 
-        Default: birb_{rand}.birb, where {rand} will be turned into a random
+        Default: birb_{{rand}}.birb, where {{rand}} will be turned into a random
         string, to insure the file is available.
 
   -t, --threads <number>
@@ -31,6 +31,12 @@ POSSIBLE FLAGS AND WHAT THEY MEAN:
         If no timeout is specified this value will be set to the larges possible
         unsigned 64-Bit integer, a number of seconds, that is unlikely to be
         reached, while computation is active.
+
+  -int, --interval <seconds>
+        The logging function will attempt to output a log only after <seconds>
+        seconds have elapsed.
+
+        Default: 10
 
   -w, --width <number>
         How wide to make the birb.
@@ -59,6 +65,12 @@ POSSIBLE FLAGS AND WHAT THEY MEAN:
         for more.
 
         Default: 100
+
+  -p, --phase_len <number>
+        How many Metropolis Hastings Orbits each thread computes before calling
+        write_back -- The length of a write_back phase.
+
+        Default: 10000
 
   -c1, --complex1 <real> <imaginairy>
         One of the corners of the frame of the Complex Plane that is to be
