@@ -127,5 +127,36 @@ fn main() {
 
     }
 
+/*****************************************************/
+
+    for i in 0..h {
+
+        for j in 2..w {
+
+		let c = birb[(i*w+j-2) as usize];
+		if c > 50 && c < 150 {
+			print!("∙ ");
+		} else if c > 150 && c < 1000 {
+			print!("○ ");
+		} else if c > 1000 && c < 20000 {
+			print!("■ ");
+		} else if c > 20000 && c < 80000 {
+			print!("░░");
+		} else if c > 80000 && c < 150000 {
+			print!("▒▒");
+		} else if c > 150000 && c < 200000{
+			print!("▓▓");
+		} else if c > 200000 {
+			print!("██");
+		} else {
+			print!("  ");
+		}
+
+        }
+
+        print!("\n");
+
+    }
+
 
 }

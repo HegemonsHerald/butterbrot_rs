@@ -55,3 +55,8 @@ Now, to make this feasable and to get that 50000 iterations render:
     as a command line flag: have the thread setup work with lower image_size values
     as a memory reference, and then have the image still be mapped over to the entire
     full resolution buffer, basically decouple the mapping from the mem-control!
+
+
+
+SUPER SIMPLE SOLUTION TO THE MEMORY PROBLEM: ADD PHASE_LEN AS A COMMAND LINE FLAG, THAT IS DEFAULT COMPUTED
+FROM THE THREAD_COUNT AND THE BUFFER SIZE BUT CAN BE OVERRIDDEN!

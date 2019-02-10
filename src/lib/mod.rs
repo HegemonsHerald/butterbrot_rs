@@ -154,7 +154,8 @@ pub fn butterbrot_run(
 
     // How many orbits to compute per write_back phase in each thread
     let pl        = (width * height + 2) / thread_count as u64;
-    let phase_len = if pl > 0 { pl } else { 1 };    // Integer division might yield 0
+    //let phase_len = if pl > 0 { pl } else { 1 };    // Integer division might yield 0
+    let phase_len = 500;
 
     // NOTE: Each thread gets to compute only so many orbits, as to only slightly exceed twice the
     // size of supreme_birb for total memory consumption
