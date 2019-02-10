@@ -10,3 +10,7 @@ rand = "0.6.5"
 [[bin]]
 name = "butterbrot_rs"
 path = "src/butterbrot.rs"
+
+[[bin]]
+name = "birb2term_rs"
+path = "src/birb2term.rs"

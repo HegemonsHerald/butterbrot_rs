@@ -471,7 +471,7 @@ mod tests {
 
             println!("{} {}", i, v);
 
-        })
+        });
 
         /* Try and write the birb file */
         write_birb("birb.birb", &buffer);

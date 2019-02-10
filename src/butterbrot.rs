@@ -1,7 +1,7 @@
 mod lib;
 use lib::*;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 fn main() {
 
@@ -9,6 +9,9 @@ fn main() {
 
     let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup), to) = io::parse_args(std::env::args().collect());
     let timeout = Duration::from_secs(to);
+
+    // Used to compute the 'total' time taken...
+    let outer_timestamp = Instant::now();
 
 
     /* Do the actual thing */
@@ -49,7 +52,7 @@ fn main() {
     io::write_birb(&filename, &birb);
     println!("{g}Successfully wrote to file.{w}", g = "\x1B[32m", w = "\x1B[0m");
 
-    birb.iter().enumerate().for_each(|(i,v)| println!("{} {}", i, v));
+    println!("Total time taken: {g}{}s{w}", outer_timestamp.elapsed().as_secs(), g = "\x1B[32m", w = "\x1B[0m");
 
 
     /* Finish properly */

@@ -29,7 +29,6 @@ Fixing the mathematics from the math module...
     Which version is the "true" Buddhabrot set will be revealed by birb2img...
 
 
-
 Args_Parser
 ===========
 
