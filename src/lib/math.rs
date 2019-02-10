@@ -347,25 +347,19 @@ impl Iterator for MHOrbits {
 
                 let s = MHOrbits::sample_from(&mut self.rng, self.step_size, &self.sample);
 
-                // TODO Check whether the very last point of the orbit is going off to infinity
-
                 let mut o = Orbit::new(s, self.iterations)
                     .enumerate()
                     .filter(|(i,c)| {
-                        if i+1 == self.iterations as usize { return true }
-//                      .filter(|c| {
+                        if i+1 == self.iterations as usize { return true }          // Keep the very last number of the orbit, whether it's in_range or not
                         MHOrbits::in_range(c, &self.lower_bound, &self.upper_bound)
                     })
                     .map(|(_,c)| c)
                     .collect::<Vec<Complex>>();
 
-                // If the sample still turns out to be bad...
+                // Check the orbit's last number: was the sample in the Mandelbrot set, or not?
                 let last = o[o.len()-1];
-                if last.abs() < 2f64 {
-                    continue;
-                } else if !MHOrbits::in_range(&last, &self.lower_bound, &self.upper_bound) {
-                    o.pop();
-                }
+                if last.abs() < 2f64 { continue }
+                else if !MHOrbits::in_range(&last, &self.lower_bound, &self.upper_bound) { o.pop(); }
 
                 let l = o.len() as i32;
 
