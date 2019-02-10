@@ -207,12 +207,15 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
     let mut args = args_v.into_iter();
     args.next();    // skip the name of the application
 
+    let mut zoom = 100f64;
+    let mut center = Complex::new(0f64, 0f64);
+
     // TODO make the defaults and the help text align
     // output has the format:
     // ( (width, height), (c1, c2), filename, thread_count, (samples, iterations, warmup, phase_len), (timeout, logging_interval) )
     let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32,i32), (u64,u64) ) = (
-        (10, 10),
-        (Complex::new(-2.0, -2.0), Complex::new(2.0, 2.0)),
+        (400, 400),
+        (Complex::new(42.0, 42.0), Complex::new(42.0, 42.0)),
         gen_filename(),
         7,
         (400, 10, 100, 10_000),
@@ -234,6 +237,7 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
 
             "--width"      | "-w"   => { (output.0).0 = parse!("--width",      args, u64)     },
             "--height"     | "-h"   => { (output.0).1 = parse!("--height",     args, u64)     },
+            "--zoom"       | "-z"   => {  zoom        = parse!("--zoom",       args, f64)     },
             "--warmup"     | "-wu"  => { (output.4).2 = parse!("--warmup",     args, i32)     },
             "--timeout"    | "-to"  => { (output.5).0 = parse!("--timeout",    args, u64)     },
             "--interval"   | "-int" => { (output.5).1 = parse!("--interval",   args, u64)     },
@@ -242,10 +246,11 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
             "--samples"    | "-s"   => { (output.4).0 = parse!("--samples",    args, i32)     },
             "--complex1"   | "-c1"  => { (output.1).0 = parse!("--complex1",   args, complex) },
             "--complex2"   | "-c2"  => { (output.1).1 = parse!("--complex2",   args, complex) },
+            "--center"     | "-c"   => {  center      = parse!("--center",     args, complex) },
             "--phase_len"  | "-p"   => { (output.4).3 = parse!("--phase_len",  args, i32)     },
             "--iterations" | "-i"   => { (output.4).1 = parse!("--iterations", args, i32)     },
             "--help"       | "h"    => {
-                println!("USAGE:\n\n  butterbrot [ARGUMENTS]\n\n\nPOSSIBLE FLAGS AND WHAT THEY MEAN:\n\n  h, --help\n        Display this help text.\n\n  -o, --filename <filename>\n        The filename to write the computed data to. This will be a birb file.\n\n        Default: birb_{{rand}}.birb, where {{rand}} will be turned into a random\n        string, to insure the file is available.\n\n  -t, --threads <number>\n        How many threads to use for parallel computation. Note, that this is the\n        number of computation threads. The total number of threads is one\n        larger, as this doesn't include the main thread.  This works better, if\n        the total number of threads doesn't exceed the number of available\n        cores.\n\n        Default: 7\n\n  -to, --timeout <seconds>\n        How many whole seconds to run AT MINIMUM, before the program terminates\n        the computation. Note, that the program will finish some time after the\n        timeout has been reached, as each thread will finish the currently\n        active computation before returning.\n        If no timeout is specified this value will be set to the larges possible\n        unsigned 64-Bit integer, a number of seconds, that is unlikely to be\n        reached, while computation is active.\n\n  -int, --interval <seconds>\n        The logging function will attempt to output a log only after <seconds>\n        seconds have elapsed.\n\n        Default: 10\n\n  -w, --width <number>\n        How wide to make the birb.\n\n        Default: 100\n\n  -h, --height <number>\n        How tall to make the birb.\n\n        Default: 100\n\n  -wu, --warmup <number>\n        How many samples should the Metropolis-Hastings Iterators discard as\n        warmup. See documentation for more.\n\n        Default: 1000\n\n  -s, --samples <number>\n        How many samples should the program compute in total, across all\n        threads. This does not include the warmup.\n\n        Default: 10000\n\n  -i, --iterations <number>\n        How many iterations long should each Orbit be at max. See documentation\n        for more.\n\n        Default: 100\n\n  -p, --phase_len <number>\n        How many Metropolis Hastings Orbits each thread computes before calling\n        write_back -- The length of a write_back phase.\n\n        Default: 10000\n\n  -c1, --complex1 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: -2.0 -2.0\n\n  -c2, --complex2 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: 2.0 2.0\n\n");
+                println!("USAGE:\n\n  butterbrot [ARGUMENTS]\n\n\nPOSSIBLE FLAGS AND WHAT THEY MEAN:\n\n  h, --help\n        Display this help text.\n\n  -o, --filename <filename>\n        The filename to write the computed data to. This will be a birb file.\n\n        Default: birb_{{rand}}.birb, where {{rand}} will be turned into a random\n        string, to insure the file is available.\n\n  -t, --threads <number>\n        How many threads to use for parallel computation. Note, that this is the\n        number of computation threads. The total number of threads is one\n        larger, as this doesn't include the main thread.  This works better, if\n        the total number of threads doesn't exceed the number of available\n        cores.\n\n        Default: 7\n\n  -to, --timeout <seconds>\n        How many whole seconds to run AT MINIMUM, before the program terminates\n        the computation. Note, that the program will finish some time after the\n        timeout has been reached, as each thread will finish the currently\n        active computation before returning.\n        If no timeout is specified this value will be set to the larges possible\n        unsigned 64-Bit integer, a number of seconds, that is unlikely to be\n        reached, while computation is active.\n\n  -int, --interval <seconds>\n        The logging function will attempt to output a log only after <seconds>\n        seconds have elapsed.\n\n        Default: 10\n\n  -w, --width <number>\n        How wide to make the birb.\n\n        Default: 400\n\n  -h, --height <number>\n        How tall to make the birb.\n\n        Default: 400\n\n  -z, --zoom <number>\n        How much to zoom in.\n        This zoom factor is used to map the --width and the --height onto\n        the Complex plane, relative to the complex number specified using\n        --center.\n\n        This flag is overridden by either of --complex1 and --complex2.\n\n        Using the --zoom and --center flags to control the image is more\n        convenient, than using --complex1 and --complex2 directly, since the\n        zoom method preserves the image ratio.\n\n        The <number> may be a float.\n\n        Default: 100\n\n  -c, --center <real> <imaginairy>\n        The complex number, that should be in the center point of the final\n        image.\n\n        Default: 0 0\n\n  -wu, --warmup <number>\n        How many samples should the Metropolis-Hastings Iterators discard as\n        warmup. See documentation for more.\n\n        Default: 1000\n\n  -s, --samples <number>\n        How many samples should the program compute in total, across all\n        threads. This does not include the warmup.\n\n        Default: 10000\n\n  -i, --iterations <number>\n        How many iterations long should each Orbit be at max. See documentation\n        for more.\n\n        Default: 100\n\n  -p, --phase_len <number>\n        How many Metropolis Hastings Orbits each thread computes before calling\n        write_back -- The length of a write_back phase.\n\n        Default: 10000\n\n  -c1, --complex1 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: 42.0 42.0\n\n  -c2, --complex2 <real> <imaginairy>\n        One of the corners of the frame of the Complex Plane that is to be\n        explored. This must be a diagonally opposite corner to --complex1.\n        The real and imaginairy parts must be floats.\n\n        Default: 42.0 42.0\n");
                 std::process::exit(0);
 
             },
@@ -253,6 +258,22 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
             s => { parse!(s, error) },
 
         }
+
+    }
+
+    // Compute coordinates of the frame of the Complex plane, if none have been provided
+    if (output.1).0.r == 42.0 && (output.1).0.i == 42.0 && (output.1).1.r == 42.0 && (output.1).1.i == 42.0 {
+
+        let step_size = 1f64 / zoom;
+        let frame_width  = (output.0).0 as f64 * step_size;
+        let frame_height = (output.0).1 as f64 * step_size;
+
+        let delta = Complex::new(frame_width / 2f64, frame_height / 2f64);
+        let c1 = center.sub(&delta);
+        let c2 = center.add(&delta);
+
+        (output.1).0 = c1;
+        (output.1).1 = c2;
 
     }
 

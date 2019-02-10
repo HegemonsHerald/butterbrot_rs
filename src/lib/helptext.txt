@@ -41,12 +41,34 @@ POSSIBLE FLAGS AND WHAT THEY MEAN:
   -w, --width <number>
         How wide to make the birb.
 
-        Default: 100
+        Default: 400
 
   -h, --height <number>
         How tall to make the birb.
 
+        Default: 400
+
+  -z, --zoom <number>
+        How much to zoom in.
+        This zoom factor is used to map the --width and the --height onto
+        the Complex plane, relative to the complex number specified using
+        --center.
+
+        This flag is overridden by either of --complex1 and --complex2.
+
+        Using the --zoom and --center flags to control the image is more
+        convenient, than using --complex1 and --complex2 directly, since the
+        zoom method preserves the image ratio.
+
+        The <number> may be a float.
+
         Default: 100
+
+  -c, --center <real> <imaginairy>
+        The complex number, that should be in the center point of the final
+        image.
+
+        Default: 0 0
 
   -wu, --warmup <number>
         How many samples should the Metropolis-Hastings Iterators discard as
@@ -77,11 +99,11 @@ POSSIBLE FLAGS AND WHAT THEY MEAN:
         explored. This must be a diagonally opposite corner to --complex1.
         The real and imaginairy parts must be floats.
 
-        Default: -2.0 -2.0
+        Default: 42.0 42.0
 
   -c2, --complex2 <real> <imaginairy>
         One of the corners of the frame of the Complex Plane that is to be
         explored. This must be a diagonally opposite corner to --complex1.
         The real and imaginairy parts must be floats.
 
-        Default: 2.0 2.0
+        Default: 42.0 42.0

@@ -19,7 +19,7 @@ impl Complex {
     }
 
     #[inline]
-    fn multiply(&self, c:&Complex) -> Complex {
+    pub fn multiply(&self, c:&Complex) -> Complex {
 
         let r = self.r * c.r - self.i * c.i;
         let i = self.r * c.i + self.i * c.r;
@@ -29,22 +29,32 @@ impl Complex {
     }
 
     #[inline]
-    fn abs(&self) -> f64 {
+    pub fn abs(&self) -> f64 {
 
         (self.r.powi(2) + self.i.powi(2)).sqrt()
 
     }
 
     #[inline]
-    fn squared(&self) -> Complex {
+    pub fn squared(&self) -> Complex {
         self.multiply(self)
     }
 
     #[inline]
-    fn add(&self, c:&Complex) -> Complex {
+    pub fn add(&self, c:&Complex) -> Complex {
 
         let r = self.r + c.r;
         let i = self.i + c.i;
+
+        Complex::new(r, i)
+
+    }
+
+    #[inline]
+    pub fn sub(&self, c:&Complex) -> Complex {
+
+        let r = self.r - c.r;
+        let i = self.i - c.i;
 
         Complex::new(r, i)
 
