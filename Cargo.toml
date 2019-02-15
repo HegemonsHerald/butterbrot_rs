@@ -5,12 +5,18 @@ authors = ["HegemonsHerald <benediktheinen1@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rand = "0.6.5"
+rand  = "0.6.5"
+rayon = "1.0.3"
+bmp   = "0.4.0"
 
 [[bin]]
-name = "butterbrot_rs"
+name = "birb2bmp"
+path = "src/birb2bmp.rs"
+
+[[bin]]
+name = "butterbrot"
 path = "src/butterbrot.rs"
 
 [[bin]]
-name = "birb2term_rs"
+name = "birb2term"
 path = "src/birb2term.rs"

@@ -7,7 +7,7 @@ fn main() {
 
     /* Parse Arguments */
 
-    let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup, phase_len), (to,int)) = io::parse_args(std::env::args().collect());
+    let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup, phase_len), (to,int)) = butterbrot::parse_args(std::env::args().collect());
 
     let timeout          = Duration::from_secs(to);
     let logging_interval = Duration::from_secs(int);

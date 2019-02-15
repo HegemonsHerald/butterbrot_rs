@@ -67,6 +67,7 @@ macro_rules! error {
 
 pub mod io;
 pub mod math;
+pub mod butterbrot;
 
 use std::sync::{Arc, Mutex};
 use std::thread;
