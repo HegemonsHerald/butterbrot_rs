@@ -40,7 +40,7 @@ fn main() {
 
     // Find largest value
     let max;
-    match &mut birb[0..].par_iter().max() {
+    match &mut birb[2..].par_iter().max() {
         Some(&m) => max = m,
         None     => max = 0
     }
