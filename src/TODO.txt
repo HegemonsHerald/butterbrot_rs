@@ -1,23 +1,2 @@
-THE birb2bmp TOOL
-=================
 
-  - load a birb from file <- args_parser variant
-  - split it into thread slices <- unsafe
-  - find the largest number from the birb in parallel
-
-  - what's the best approach to create the bitmap...?
-     - single threadedly just compute
-     - multi threaded: replace all the numbers in the birb with their 256 mapped counterparts?, then either use linear write or a mutex or something...
-     - multi threaded: separate tinier bitmaps to merge into one larger one?    <- Can you do that?
-     - multi threaded: one large bitmap with unsafe mutable concurrent slicing? <- Can you do that? This would be the BEST
-
-
-=====================================
-FIX ALL THE TODOS THAT ARE EVERYWHERE
-=====================================
-
-  - make the defaults and the help text align
-
-3. Combine that with the birb_combinator and you're golden! Maximum pay for maximum investment.
-   THAT SETTLES IT THEN: I AM INDEED GOING TO WRITE A BIRB_COMBINATOR PROGRAM
-   Might as well write a little shell script, that will handle the tiling, by mapping integers to the floaty strings or sth...
+The birb_combinator tool.
