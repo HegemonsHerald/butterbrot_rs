@@ -18,12 +18,14 @@ fn main() {
 
     let mut filename = gen_filename("bmp");
     let mut src_name = "data.birb".to_string();
+    let mut invert   = false;
 
     match args.len() {
         0 => {},
         1 => {},
         2 =>   src_name = args[1].clone(),
-        _ => { src_name = args[1].clone(); filename = args[2].clone() },
+        3 => { src_name = args[1].clone(); filename = args[2].clone() },
+        _ => { src_name = args[1].clone(); filename = args[2].clone(); invert = true },
     }
 
 
@@ -66,6 +68,8 @@ fn main() {
 
             let x = (i % width as usize) as u32;
             let y = (i / width as usize) as u32;
+
+            let n = if invert { 255 - n } else { n };
 
             img.set_pixel(x, y, px!(n, n, n));
 
