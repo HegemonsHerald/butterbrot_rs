@@ -1,34 +1,6 @@
-THE birb2bmp TOOL
-=================
 
-  - load a birb from file <- args_parser variant
-  - split it into thread slices <- unsafe
-  - find the largest number from the birb in parallel
+Documentation:
 
-  - what's the best approach to create the bitmap...?
-     - single threadedly just compute
-     - multi threaded: replace all the numbers in the birb with their 256 mapped counterparts?, then either use linear write or a mutex or something...
-     - multi threaded: separate tinier bitmaps to merge into one larger one?    <- Can you do that?
-     - multi threaded: one large bitmap with unsafe mutable concurrent slicing? <- Can you do that? This would be the BEST
-
-
-=====================================
-FIX ALL THE TODOS THAT ARE EVERYWHERE
-=====================================
-
-  - make the defaults and the help text align
-
-Args_Parser
-===========
-
-Consider allowing for the (as it seems) common input mode:
-
-provide an anchor point, width, height and a zoom factor.
-
-The inverse of the zoom factor is the step_size, so you can just go:
-
-step_size = (1/zoom, 1/zoom)
-other_point = { point.r + step_size.0
-                point.i + step_size.1 }
-
-To make this compatible with the code you already got...
+    - Readme with usage and examples of the three programs
+    - Module level documentation for each of the modules
+    - some actual renders

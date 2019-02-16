@@ -213,7 +213,7 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
     let mut output: ( (u64,u64), (Complex,Complex), String, i32, (i32,i32,i32), u64 ) = (
         (10, 10),
         (Complex::new(-2.0, -2.0), Complex::new(2.0, 2.0)),
-        gen_filename(),
+        gen_filename("birb"),
         7,
         (400, 10, 100),
         std::u64::MAX,
@@ -264,7 +264,7 @@ pub fn parse_args(args_v:Vec<String>) -> ( (u64,u64), (Complex,Complex), String,
 /// `gen_filename()` generates a filename along the pattern `birb_XXXX.birb` where `XXXX` are four
 /// randomly selected uppercase letters from the ASCII set.
 #[inline]
-fn gen_filename() -> String {
+pub fn gen_filename(s:&str) -> String {
 
     use rand::distributions::Distribution;
 
