@@ -21,7 +21,7 @@ fn main() {
 
         // Two source files provided
         3 => {
-            filename = gen_filename("birb");
+            filename = gen_filename("combined.birb");
             buffer   = read_birb(&args[1]);
             rest     = &args[2..];
         },
@@ -48,7 +48,7 @@ fn main() {
 
         // Are the buffers at least somewhat compatible?
         if buffer2.len() != (width * height + 2) as usize {
-            println!("\x1B[31;1mError:\x1B[0m The birb file \"{}\" does not have width {} and height {}!\n\n\t{0} {{ width: {}, height: {} }}", b, width, height, buffer2[0], buffer2[1]);
+            println!("\x1B[31;1mError:\x1B[0m The birb file \"{}\" does not have width {} and height {}!\n       \"{0}\" has width {} and height {}.", b, width, height, buffer2[0], buffer2[1]);
             continue;
         }
 
@@ -60,8 +60,13 @@ fn main() {
             if i >= 2 {
 
                 // Don't overflow while adding
-                if let (m, false) = (*n).overflowing_add(buffer2[i]) {
-                    *n = m;
+                let ov = (*n).overflowing_add(buffer2[i]);
+                match ov {
+                    (m, false) => *n = m,
+                    (_,  true) => {
+                        println!("\x1B[33;1mWarning:\x1B[0m Overflow has been detected. The value will be capped to u64 max.");
+                        *n = std::u64::MAX;
+                    },
                 }
 
             }
