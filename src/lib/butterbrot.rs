@@ -1,3 +1,7 @@
+//! This module only contains the `parse_args()` function and the associated `parse!()` macro, which are used by the `butterbrot`
+//! binairy. When I put this function here, I wasn't yet certain, wether I'd need more bin specific
+//! modules or not.
+
 use super::math::Complex;
 use std::io::*;
 use std::fs::File;

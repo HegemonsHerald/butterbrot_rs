@@ -1,3 +1,14 @@
+//! This module re-exports the `io`, `maths` and `butterbrot` modules.
+//!
+//! This module hosts the `butterbrot_run()` function, which computes a Buddhabrot render.  
+//! This module also contains and exports the `error!()` macro, which calls `.unwrap_or_else()` on
+//! a `Result` and kills the program with a custom `panic!` should the `Err(e)` variant come to
+//! pass. This macro is used in all sorts of places mostly for IO related operations.  
+//! This module also contains several functions related to and including the `logging()` function,
+//! which generates the CLI output, that tells the user information about the status of the
+//! computation.
+
+
 // Colors for the output
 const WHITE  :&str = "\x1B[0m";
 const RED    :&str = "\x1B[31m";

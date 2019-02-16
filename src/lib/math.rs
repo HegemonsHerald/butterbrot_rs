@@ -1,3 +1,6 @@
+//! The mathematics of the Metropolis-Hastings based sampling of the Buddhabrot Render of the
+//! Mandelbrot fractal. For more detail, check the README.
+
 extern crate rand;
 use rand::Rng;
 use rand::prelude::ThreadRng;

@@ -1,3 +1,10 @@
+//! Helper functions for IO operations
+//!
+//!  - `gen_filename()` generates a partially random filename, for cases, where the user didn't
+//!  specify an output filename
+//!  - `read_birb()` reads and validates a `.birb` file
+//!  - `write_birb()` takes a filename and a buffer and attempts to write it to disk
+
 use std::io::*;
 use std::fs::File;
 extern crate rand;
@@ -25,8 +32,6 @@ pub fn gen_filename(ext:&str) -> String {
     format!("birb_{}{}{}{}.{}", a,b,c,d,ext)
 
 }
-
-
 
 /// Reads a `.birb` file to `Vec<u64>`.
 /// Takes the `filename` to read from.

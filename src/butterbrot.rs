@@ -5,14 +5,14 @@ use std::time::{Duration, Instant};
 
 fn main() {
 
-    /* Parse Arguments */
+    /* Parse Arguments and setup */
 
     let ( (width, height), (c1, c2), filename, thread_count, (sample_count, iterations, warmup, phase_len), (to,int)) = butterbrot::parse_args(std::env::args().collect());
 
     let timeout          = Duration::from_secs(to);
     let logging_interval = Duration::from_secs(int);
 
-    // Used to compute the 'total' time taken...
+    // Used to compute the 'total' time taken right at the end
     let outer_timestamp = Instant::now();
 
 

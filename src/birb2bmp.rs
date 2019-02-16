@@ -1,14 +1,12 @@
-extern crate rayon;
 #[macro_use]
 extern crate bmp;
+extern crate rayon;
+
+use bmp::Pixel;
+use rayon::prelude::*;
 
 mod lib;
 use lib::io::*;
-use rayon::prelude::*;
-use bmp::Pixel;
-
-use std::time::Instant;
-
 
 fn main() {
 
@@ -77,6 +75,5 @@ fn main() {
 
     // Write it to file
     let _ = img.save(filename);
-
 
 }

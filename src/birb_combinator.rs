@@ -1,6 +1,5 @@
 mod lib;
 use lib::io::*;
-use std::time::Instant;
 
 const ERR_MSG:&str = "Not enough arguments provided.\n\n\tUSAGE:\n\n\t\tbirb_combinator birb1 birb2\n\n\t\tbirb_combinator outname birb1 birb2 [...]\n\n\tIf 2 birb files are provided, a random filename will be used.\n\tIf 3 or more arguments are provided, the first argument must be the filename to write the combined birb to.";
 
@@ -12,12 +11,12 @@ fn main() {
 
     let filename;
     let mut buffer; // birb to sum other birbs into
-    let rest;       // slice over the filenames of the birbs to add... the rest of the arguments
+    let rest;       // slice over the filenames of the birbs to add... the 'rest' of the arguments
 
     match args.len() {
 
-        1 => { error!(Err(()), ERR_MSG); panic!("") },
-        2 => { error!(Err(()), ERR_MSG); panic!("") },
+        1 => { error!(Err(()), ERR_MSG); panic!("") }, // Too few arguments
+        2 => { error!(Err(()), ERR_MSG); panic!("") }, // Too few arguments
 
         // Two source files provided
         3 => {
@@ -26,7 +25,7 @@ fn main() {
             rest     = &args[2..];
         },
 
-        // An out filename and source files provided
+        // An out-filename and source files provided
         _ => {
             filename = args[1].clone();
             buffer   = read_birb(&args[2]);
@@ -34,7 +33,6 @@ fn main() {
         }
 
     }
-
 
 
     /* Combine all the files, provided they are all of same width and height */
@@ -71,9 +69,9 @@ fn main() {
 
             }
 
-        });
-    }
+        })
 
+    }
 
 
     /* Write output */
