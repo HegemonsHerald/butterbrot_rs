@@ -20,3 +20,7 @@ path = "src/butterbrot.rs"
 [[bin]]
 name = "birb2term"
 path = "src/birb2term.rs"
+
+[[bin]]
+name = "birb_combinator"
+path = "src/birb_combinator.rs"

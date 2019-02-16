@@ -1,2 +1,5 @@
+Documentation:
 
-The birb_combinator tool.
+    - Readme with usage and examples of the three programs
+    - Module level documentation for each of the modules
+    - some actual renders
