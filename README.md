@@ -2,7 +2,7 @@
 
 *Buddhabrot? Pah, Butterbrot!*
 
-Butterbrot_rs is a program, that computes and renders the (Buddhabrot)[https://en.wikipedia.org/wiki/Buddhabrot] set.  
+Butterbrot_rs is a program, that computes and renders the [Buddhabrot](https://en.wikipedia.org/wiki/Buddhabrot) set.  
 The Buddhabrot set isn't really a set at all, it is a fancy way of viewing the Mandelbrot set. For an explanation see below.
 
 I wrote this thing entirely in Rust, trying to use the features of the language to my advantage.
@@ -91,7 +91,7 @@ basically make a lot of sense.
 ##### Metropolis Hastings
 
 Turns out, probability distributions are a bit of a pain to compute. If you *just* choose random samples, you're going to wait a long
-while, before you get a clear image, so instead lets be clever about this and copy (this dude (Alexander Boswell))[http://www.steckles.com/buddha/], who implemented a take on what's
+while, before you get a clear image, so instead lets be clever about this and copy [this dude (Alexander Boswell)](http://www.steckles.com/buddha/), who implemented a take on what's
 known as the "Metropolis-Hastings" Algorithm.
 
 (I used Mr. Boswell's C++ based implementation as a reference on how to do it, and in order to understand Metropolis-Hastings. However,
@@ -117,9 +117,9 @@ off the bat: You might've started off with a really bad sample, that you use to 
 know. Just ignore the first couple samples and let Metropolis-Hastings *warm up*.
 
 To learn more on Metropolis-Hastings and the Buddhabrot set in general, I can only point to:
-- (wikipedia)[http://en.wikipedia.org/wiki/Buddhabrot]
-- (Alexander Boswell)[http://www.steckles.com/buddha/]
-- (Benedikt Bitterli)[https://benedikt-bitterli.me/buddhabrot/]
+- [wikipedia](http://en.wikipedia.org/wiki/Buddhabrot)
+- [Alexander Boswell](http://www.steckles.com/buddha/)
+- [Benedikt Bitterli](https://benedikt-bitterli.me/buddhabrot/)
 
 
 ##### The Iterators
